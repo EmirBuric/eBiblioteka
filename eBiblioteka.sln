@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eBiblioteka.API", "eBiblioteka.API\eBiblioteka.API.csproj", "{68A7F800-13EE-4DCD-B3B7-EDAB0ACF32F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "eBiblioteka.API", "eBiblioteka.API\eBiblioteka.API.csproj", "{68A7F800-13EE-4DCD-B3B7-EDAB0ACF32F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eBiblioteka.Modeli", "eBiblioteka.Modeli\eBiblioteka.Modeli.csproj", "{88612654-1D6B-45CB-9698-B5FBEE289EE4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eBiblioteka.Servisi", "eBiblioteka.Servisi\eBiblioteka.Servisi.csproj", "{12D5FE03-EC75-4FF2-AA17-6304BE90104B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{68A7F800-13EE-4DCD-B3B7-EDAB0ACF32F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68A7F800-13EE-4DCD-B3B7-EDAB0ACF32F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68A7F800-13EE-4DCD-B3B7-EDAB0ACF32F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88612654-1D6B-45CB-9698-B5FBEE289EE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88612654-1D6B-45CB-9698-B5FBEE289EE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88612654-1D6B-45CB-9698-B5FBEE289EE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88612654-1D6B-45CB-9698-B5FBEE289EE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12D5FE03-EC75-4FF2-AA17-6304BE90104B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12D5FE03-EC75-4FF2-AA17-6304BE90104B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12D5FE03-EC75-4FF2-AA17-6304BE90104B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12D5FE03-EC75-4FF2-AA17-6304BE90104B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
