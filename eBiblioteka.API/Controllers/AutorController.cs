@@ -12,14 +12,14 @@ namespace eBiblioteka.API.Controllers
         {
         }
 
-        public override Autor Insert(AutorUpsertRequest insert)
+        public override Task<Autor> Insert(AutorUpsertRequest insert, CancellationToken cancellationToken = default)
         {
-            return base.Insert(insert);
+            return base.Insert(insert,cancellationToken);
         }
 
-        public override PagedResult<Autor> GetList([FromQuery] AutorSearchObject searchObject) 
+        public override Task<PagedResult<Autor>> GetList([FromQuery] AutorSearchObject searchObject, CancellationToken cancellationToken=default) 
         {
-            return base.GetList(searchObject);
+            return base.GetList(searchObject,cancellationToken);
         }
     }
 }

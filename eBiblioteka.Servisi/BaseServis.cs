@@ -2,6 +2,7 @@
 using eBiblioteka.Modeli.SearchObjects;
 using eBiblioteka.Servisi.Database;
 using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace eBiblioteka.Servisi
         where TSearch : BaseSearchObject
     {
         public Db180105Context Context { get; }
+        public IMapper Mapper { get; }
 
         public BaseServis(Db180105Context context,IMapper mapper)
         {
@@ -23,9 +25,7 @@ namespace eBiblioteka.Servisi
             Mapper = mapper;
         }
 
-        public IMapper Mapper { get; }
-
-        public PagedResult<TModel> GetPaged(TSearch search)
+        public async Task<PagedResult<TModel>> GetPaged(TSearch search, CancellationToken cancellationToken = default)
         {
             List<TModel> res = new List<TModel>();
 
@@ -33,7 +33,7 @@ namespace eBiblioteka.Servisi
 
             query=AddFilter(search, query);
 
-            int count= query.Count();
+            int count= await query.CountAsync(cancellationToken);
 
             if(search?.Page.HasValue==true &&
                 search?.PageSize.HasValue==true &&
@@ -43,7 +43,7 @@ namespace eBiblioteka.Servisi
                 query=query.Skip((search.Page.Value-1)* search.PageSize.Value).Take(search.PageSize.Value);
             }
 
-            var list = query.ToList();
+            var list = await query.ToListAsync(cancellationToken);
 
             res = Mapper.Map(list, res);
 
@@ -59,9 +59,9 @@ namespace eBiblioteka.Servisi
             return query;
         }
 
-        public TModel GetById(int id)
+        public async Task<TModel> GetById(int id,CancellationToken cancellationToken=default)
         {
-            var entity = Context.Set<TDbEntity>().Find(id);
+            var entity = await Context.Set<TDbEntity>().FindAsync(id,cancellationToken);
 
             if(entity!=null)
             {

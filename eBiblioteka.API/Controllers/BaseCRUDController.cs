@@ -19,15 +19,15 @@ namespace eBiblioteka.API.Controllers
         }
 
         [HttpPost]
-        public virtual TModel Insert(TInsert insert) 
+        public virtual Task<TModel> Insert(TInsert insert, CancellationToken cancellationToken=default) 
         {
-            return _servis.Insert(insert);
+            return _servis.Insert(insert,cancellationToken);
         }
 
         [HttpPut("{id}")]
-        public virtual TModel Update(int id,TUpdate update) 
+        public virtual Task<TModel> Update(int id,TUpdate update,CancellationToken cancellationToken=default) 
         {
-            return _servis.Update(id, update);
+            return _servis.Update(id, update,cancellationToken);
         }
     }
 }

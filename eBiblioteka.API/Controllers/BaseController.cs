@@ -17,15 +17,15 @@ namespace eBiblioteka.API.Controllers
         }
 
         [HttpGet]
-        public virtual PagedResult<TModel> GetList([FromQuery] TSearch searchObject) 
+        public virtual Task<PagedResult<TModel>> GetList([FromQuery] TSearch searchObject, CancellationToken cancellationToken=default) 
         {
-            return _servis.GetPaged(searchObject);
+            return _servis.GetPaged(searchObject,cancellationToken);
         }
 
         [HttpGet("{id}")]
-        public virtual TModel GetById(int id)
+        public virtual Task<TModel> GetById(int id,CancellationToken cancellationToken=default)
         {
-            return _servis.GetById(id);
+            return _servis.GetById(id,cancellationToken);
         }
 
     }

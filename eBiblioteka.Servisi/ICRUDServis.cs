@@ -12,7 +12,7 @@ namespace eBiblioteka.Servisi
         where TModel:class
         where TSearch : BaseSearchObject
     {
-        TModel Insert(TInsert insert);
-        TModel Update(int id, TUpdate update);
+        Task<TModel> Insert(TInsert insert,CancellationToken cancellationToken=default);
+        Task<TModel> Update(int id, TUpdate update, CancellationToken cancellationToken= default);
     }
 }

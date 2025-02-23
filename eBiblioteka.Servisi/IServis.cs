@@ -10,7 +10,7 @@ namespace eBiblioteka.Servisi
 {
     public interface IServis<TModel,TSearch> where TSearch:BaseSearchObject
     {
-        public PagedResult<TModel> GetPaged(TSearch search);
-        public TModel GetById(int id);
+        public Task<PagedResult<TModel>> GetPaged(TSearch search, CancellationToken cancellationToken=default);
+        public Task<TModel> GetById(int id, CancellationToken cancellationToken=default);
     }
 }

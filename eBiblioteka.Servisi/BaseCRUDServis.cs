@@ -21,14 +21,14 @@ namespace eBiblioteka.Servisi
 
     
 
-        public TModel Insert(TInsert insert)
+        public async Task<TModel> Insert(TInsert insert, CancellationToken cancellationToken=default)
         {
             TDbEntity entity = Mapper.Map<TDbEntity>(insert);
 
             BeforeInsert(insert, entity);
 
             Context.Add(entity);
-            Context.SaveChanges();
+            await Context.SaveChangesAsync(cancellationToken);
 
             return Mapper.Map<TModel>(entity);
         }
@@ -38,9 +38,9 @@ namespace eBiblioteka.Servisi
 
         }
 
-        public TModel Update(int id, TUpdate update)
+        public async Task<TModel> Update(int id, TUpdate update, CancellationToken cancellationToken= default)
         {
-            var entity = Context.Set<TDbEntity>().Find(id);
+            var entity = await Context.Set<TDbEntity>().FindAsync(id,cancellationToken);
 
             if (entity == null)
             {
@@ -51,7 +51,7 @@ namespace eBiblioteka.Servisi
 
             BeforeUpdate(update, entity);
 
-            Context.SaveChanges();
+            await Context.SaveChangesAsync(cancellationToken);
 
             return Mapper.Map<TModel>(entity);
 
