@@ -7,7 +7,9 @@ public partial class TipClanarine
 {
     public int TipClanarineId { get; set; }
 
-    public string VrijemeTrajanja { get; set; } = null!;
+    public int VrijemeTrajanja { get; set; }
+
+    public int Cijena { get; set; }
 
     public virtual ICollection<Clanarina> Clanarinas { get; set; } = new List<Clanarina>();
 }

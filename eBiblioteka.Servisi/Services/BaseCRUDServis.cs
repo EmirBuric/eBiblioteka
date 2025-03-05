@@ -1,5 +1,6 @@
 ﻿using eBiblioteka.Modeli.SearchObjects;
 using eBiblioteka.Servisi.Database;
+using eBiblioteka.Servisi.Interfaces;
 using MapsterMapper;
 using System;
 using System.Collections.Generic;
@@ -7,21 +8,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace eBiblioteka.Servisi
+namespace eBiblioteka.Servisi.Services
 {
-    public class BaseCRUDServis<TModel, TSearch, TDbEntity, TInsert, TUpdate> : 
+    public class BaseCRUDServis<TModel, TSearch, TDbEntity, TInsert, TUpdate> :
         BaseServis<TModel, TSearch, TDbEntity>,
-        ICRUDServis<TModel,TSearch,TInsert,TUpdate> 
-        where TModel : class where TDbEntity : class,new()
+        ICRUDServis<TModel, TSearch, TInsert, TUpdate>
+        where TModel : class where TDbEntity : class, new()
         where TSearch : BaseSearchObject
     {
         public BaseCRUDServis(Db180105Context context, IMapper mapper) : base(context, mapper)
         {
         }
 
-    
 
-        public async Task<TModel> Insert(TInsert insert, CancellationToken cancellationToken=default)
+
+        public async Task<TModel> Insert(TInsert insert, CancellationToken cancellationToken = default)
         {
             TDbEntity entity = Mapper.Map<TDbEntity>(insert);
 
@@ -38,9 +39,9 @@ namespace eBiblioteka.Servisi
 
         }
 
-        public async Task<TModel> Update(int id, TUpdate update, CancellationToken cancellationToken= default)
+        public async Task<TModel> Update(int id, TUpdate update, CancellationToken cancellationToken = default)
         {
-            var entity = await Context.Set<TDbEntity>().FindAsync(id,cancellationToken);
+            var entity = await Context.Set<TDbEntity>().FindAsync(id, cancellationToken);
 
             if (entity == null)
             {
@@ -59,7 +60,7 @@ namespace eBiblioteka.Servisi
 
         public virtual void BeforeUpdate(TUpdate update, TDbEntity entity)
         {
- 
+
         }
     }
 }

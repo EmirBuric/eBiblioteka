@@ -1,5 +1,5 @@
 ﻿using eBiblioteka.Modeli.SearchObjects;
-using eBiblioteka.Servisi;
+using eBiblioteka.Servisi.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eBiblioteka.API.Controllers

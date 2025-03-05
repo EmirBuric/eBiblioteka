@@ -8,5 +8,7 @@ namespace eBiblioteka.Modeli.SearchObjects
     {
         public string? ImeGTE { get; set; }
         public string? PrezimeGTE { get; set; }
+        public int? GodinaRodjenjaGTE { get; set; }
+        public int? GodinaRodjenjaLTE { get; set; }
     }
 }
