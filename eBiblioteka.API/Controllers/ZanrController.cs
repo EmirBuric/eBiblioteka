@@ -2,6 +2,7 @@
 using eBiblioteka.Modeli.SearchObjects;
 using eBiblioteka.Modeli.UpsertRequest;
 using eBiblioteka.Servisi.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace eBiblioteka.API.Controllers
 {
@@ -9,6 +10,12 @@ namespace eBiblioteka.API.Controllers
     {
         public ZanrController(IZanrServis servis) : base(servis)
         {
+        }
+
+        [Authorize(Roles = "Admin")]
+        public override Task<ZanrDTO> Insert(ZanrUpsertRequest insert, CancellationToken cancellationToken = default)
+        {
+            return base.Insert(insert, cancellationToken);
         }
     }
 }

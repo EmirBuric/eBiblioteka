@@ -31,10 +31,16 @@ namespace eBiblioteka.Servisi.Services
             Context.Add(entity);
             await Context.SaveChangesAsync(cancellationToken);
 
+            AfterInsert(insert, entity);
+
             return Mapper.Map<TModel>(entity);
         }
 
         public virtual void BeforeInsert(TInsert insert, TDbEntity entity)
+        {
+
+        }
+        public virtual void AfterInsert(TInsert insert, TDbEntity entity)
         {
 
         }
@@ -54,11 +60,17 @@ namespace eBiblioteka.Servisi.Services
 
             await Context.SaveChangesAsync(cancellationToken);
 
+            AfterUpdate(update, entity);
+
             return Mapper.Map<TModel>(entity);
 
         }
 
         public virtual void BeforeUpdate(TUpdate update, TDbEntity entity)
+        {
+
+        }
+        public virtual void AfterUpdate(TUpdate update, TDbEntity entity)
         {
 
         }

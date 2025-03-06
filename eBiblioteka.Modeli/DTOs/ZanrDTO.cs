@@ -10,6 +10,6 @@ namespace eBiblioteka.Modeli.DTOs
 
         public string Naziv { get; set; } = null!;
 
-        public virtual ICollection<KnjigaDTO> Knjigas { get; set; } = new List<KnjigaDTO>();
+        //public virtual ICollection<KnjigaDTO> Knjigas { get; set; } = new List<KnjigaDTO>();
     }
 }
