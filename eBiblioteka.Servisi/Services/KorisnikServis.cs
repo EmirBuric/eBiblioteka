@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using eBiblioteka.Modeli.DTOs;
+using eBiblioteka.Modeli.Exceptions;
 using eBiblioteka.Modeli.SearchObjects;
 using eBiblioteka.Modeli.UpsertRequest;
 using eBiblioteka.Servisi.Database;
@@ -58,7 +59,7 @@ namespace eBiblioteka.Servisi.Services
 
             if (insert.Lozinka != insert.LozinkaPotvrda)
             {
-                throw new Exception("Lozinka i LozinkaPotvrda moraju biti iste");
+                throw new UserException("Lozinka i LozinkaPotvrda moraju biti iste");
             }
 
             entity.LozinkaSalt = GenerateSalt();

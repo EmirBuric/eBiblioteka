@@ -1,4 +1,5 @@
 using eBiblioteka.API.Auth;
+using eBiblioteka.API.Filteri;
 using eBiblioteka.Servisi.Database;
 using eBiblioteka.Servisi.Interfaces;
 using eBiblioteka.Servisi.Services;
@@ -17,10 +18,16 @@ builder.Services.AddTransient<ITipClanarineServis, TipClanarineServis>();
 builder.Services.AddTransient<IZanrServis, ZanrServis>();
 builder.Services.AddTransient<IKorisniciServis, KorisnikServis>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(x =>
+{
+    x.Filters.Add<ExceptionFilter>();
+});
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => {
+builder.Services.AddSwaggerGen(c =>
+{
     c.AddSecurityDefinition("basicAuth", new OpenApiSecurityScheme()
     {
         Type = SecuritySchemeType.Http,
@@ -42,7 +49,7 @@ builder.Services.AddSwaggerGen(c => {
 
 
 var connectionString = builder.Configuration.GetConnectionString("eBiblioteka");
-builder.Services.AddDbContext<Db180105Context>(options=>
+builder.Services.AddDbContext<Db180105Context>(options =>
 options.UseSqlServer(connectionString));
 
 builder.Services.AddAuthentication("BasicAuthentication").

@@ -1,4 +1,5 @@
 ﻿using eBiblioteka.Modeli.DTOs;
+using eBiblioteka.Modeli.Exceptions;
 using eBiblioteka.Modeli.SearchObjects;
 using eBiblioteka.Modeli.UpsertRequest;
 using eBiblioteka.Servisi.Database;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace eBiblioteka.Servisi.Services
 {
-    public class ZanrServis : BaseCRUDServis<ZanrDTO, ZanrSearchObject, Zanr, ZanrUpsertRequest, ZanrUpsertRequest>,IZanrServis
+    public class ZanrServis : BaseCRUDServis<ZanrDTO, ZanrSearchObject, Zanr, ZanrUpsertRequest, ZanrUpsertRequest>, IZanrServis
     {
         public ZanrServis(Db180105Context context, IMapper mapper) : base(context, mapper)
         {
@@ -20,20 +21,20 @@ namespace eBiblioteka.Servisi.Services
 
         public override IQueryable<Zanr> AddFilter(ZanrSearchObject search, IQueryable<Zanr> query)
         {
-            if(!string.IsNullOrEmpty(search.NazivGTE))
+            if (!string.IsNullOrEmpty(search.NazivGTE))
             {
-                query=query.Where(x=>x.Naziv.ToLower().StartsWith(search.NazivGTE));
+                query = query.Where(x => x.Naziv.ToLower().StartsWith(search.NazivGTE));
             }
             return query;
         }
 
         public override void BeforeInsert(ZanrUpsertRequest insert, Zanr entity)
         {
-            bool exists=Context.Zanrs.Any(x=>x.Naziv.ToLower()==insert.Naziv.ToLower());
-            
-            if (exists) 
+            bool exists = Context.Zanrs.Any(x => x.Naziv.ToLower() == insert.Naziv.ToLower());
+
+            if (exists)
             {
-                throw new Exception("Zanr već postoji");
+                throw new UserException("Zanr već postoji");
             }
 
             base.BeforeInsert(insert, entity);
