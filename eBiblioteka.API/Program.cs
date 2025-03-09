@@ -17,6 +17,8 @@ builder.Services.AddTransient<IUlogaServis, UlogaServis>();
 builder.Services.AddTransient<ITipClanarineServis, TipClanarineServis>();
 builder.Services.AddTransient<IZanrServis, ZanrServis>();
 builder.Services.AddTransient<IKorisniciServis, KorisnikServis>();
+builder.Services.AddTransient<IKnjigaAutoriServis, KnjigaAutorServis>();
+builder.Services.AddTransient<IKnjigaServis, KnjigaServis>();
 
 builder.Services.AddControllers(x =>
 {

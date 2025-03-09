@@ -53,7 +53,7 @@ namespace eBiblioteka.Servisi.Services
             }
             return query;
         }
-        public override void BeforeInsert(KorisnikInsertRequest insert, Korisnik entity)
+        public override async Task BeforeInsert(KorisnikInsertRequest insert, Korisnik entity, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation($"Adding user: {entity.KorisnickoIme}");
 
@@ -67,7 +67,7 @@ namespace eBiblioteka.Servisi.Services
             base.BeforeInsert(insert, entity);
         }
 
-        public override void AfterInsert(KorisnikInsertRequest insert, Korisnik entity)
+        public override async Task AfterInsert(KorisnikInsertRequest insert, Korisnik entity, CancellationToken cancellationToken = default)
         {
             if (insert.Uloge != null)
             {
@@ -79,13 +79,13 @@ namespace eBiblioteka.Servisi.Services
                         UlogaId = u
                     });
                 }
-                Context.SaveChanges();
+                await Context.SaveChangesAsync();
             }
             base.AfterInsert(insert, entity);
         }
 
 
-        public override void BeforeUpdate(KorisnikUpdateRequest update, Korisnik entity)
+        public override async Task BeforeUpdate(KorisnikUpdateRequest update, Korisnik entity, CancellationToken cancellationToken = default)
         {
             base.BeforeUpdate(update, entity);
             if (update.Lozinka != null && update.LozinkaPotvrda != null)

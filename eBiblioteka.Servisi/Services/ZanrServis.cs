@@ -28,7 +28,7 @@ namespace eBiblioteka.Servisi.Services
             return query;
         }
 
-        public override void BeforeInsert(ZanrUpsertRequest insert, Zanr entity)
+        public override async Task BeforeInsert(ZanrUpsertRequest insert, Zanr entity, CancellationToken cancellationToken = default)
         {
             bool exists = Context.Zanrs.Any(x => x.Naziv.ToLower() == insert.Naziv.ToLower());
 

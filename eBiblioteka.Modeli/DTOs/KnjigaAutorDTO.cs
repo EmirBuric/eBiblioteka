@@ -11,7 +11,5 @@ namespace eBiblioteka.Modeli.DTOs
         public int? KnjigaId { get; set; }
 
         public int? AutorId { get; set; }
-
-        public virtual KnjigaDTO? Knjiga { get; set; }
     }
 }

@@ -26,21 +26,22 @@ namespace eBiblioteka.Servisi.Services
         {
             TDbEntity entity = Mapper.Map<TDbEntity>(insert);
 
-            BeforeInsert(insert, entity);
+            await BeforeInsert(insert, entity);
 
             Context.Add(entity);
+
             await Context.SaveChangesAsync(cancellationToken);
 
-            AfterInsert(insert, entity);
+            await AfterInsert(insert, entity);
 
             return Mapper.Map<TModel>(entity);
         }
 
-        public virtual void BeforeInsert(TInsert insert, TDbEntity entity)
+        public virtual async Task BeforeInsert(TInsert insert, TDbEntity entity, CancellationToken cancellationToken = default)
         {
 
         }
-        public virtual void AfterInsert(TInsert insert, TDbEntity entity)
+        public virtual async Task AfterInsert(TInsert insert, TDbEntity entity, CancellationToken cancellationToken = default)
         {
 
         }
@@ -56,21 +57,21 @@ namespace eBiblioteka.Servisi.Services
 
             Mapper.Map(update, entity);
 
-            BeforeUpdate(update, entity);
+            await BeforeUpdate(update, entity);
 
             await Context.SaveChangesAsync(cancellationToken);
 
-            AfterUpdate(update, entity);
+            await AfterUpdate(update, entity);
 
             return Mapper.Map<TModel>(entity);
 
         }
 
-        public virtual void BeforeUpdate(TUpdate update, TDbEntity entity)
+        public virtual async Task BeforeUpdate(TUpdate update, TDbEntity entity, CancellationToken cancellationToken = default)
         {
 
         }
-        public virtual void AfterUpdate(TUpdate update, TDbEntity entity)
+        public virtual async Task AfterUpdate(TUpdate update, TDbEntity entity, CancellationToken cancellationToken = default)
         {
 
         }
