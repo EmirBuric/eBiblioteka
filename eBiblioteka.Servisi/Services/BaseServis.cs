@@ -34,6 +34,8 @@ namespace eBiblioteka.Servisi.Services
 
             query = AddFilter(search, query);
 
+            query = AddInclude(query, search);
+
             int count = await query.CountAsync(cancellationToken);
 
             if (search?.Page.HasValue == true &&
@@ -55,6 +57,13 @@ namespace eBiblioteka.Servisi.Services
             return pagedResult;
 
         }
+
+        public virtual IQueryable<TDbEntity> AddInclude(IQueryable<TDbEntity> query, TSearch? search = null)
+        {
+            return query;
+        }
+
+
         public virtual IQueryable<TDbEntity> AddFilter(TSearch search, IQueryable<TDbEntity> query)
         {
             return query;
@@ -62,7 +71,9 @@ namespace eBiblioteka.Servisi.Services
 
         public async Task<TModel> GetById(int id, CancellationToken cancellationToken = default)
         {
-            var entity = await Context.Set<TDbEntity>().FindAsync(id, cancellationToken);
+            var query= Context.Set<TDbEntity>().AsQueryable();
+
+            var entity = await AddIncludeId(query, id);
 
             if (entity != null)
             {
@@ -72,6 +83,11 @@ namespace eBiblioteka.Servisi.Services
             {
                 return null;
             }
+        }
+
+        public virtual async Task<TDbEntity> AddIncludeId(IQueryable<TDbEntity> query, int id)
+        {
+            return (TDbEntity)query;
         }
     }
 }

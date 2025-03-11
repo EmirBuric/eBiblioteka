@@ -19,6 +19,8 @@ builder.Services.AddTransient<IZanrServis, ZanrServis>();
 builder.Services.AddTransient<IKorisniciServis, KorisnikServis>();
 builder.Services.AddTransient<IKnjigaAutoriServis, KnjigaAutorServis>();
 builder.Services.AddTransient<IKnjigaServis, KnjigaServis>();
+builder.Services.AddTransient<IKorisnikIzabranaKnjigaServis, KorisnikIzabranaKnjigServis>();
+
 
 builder.Services.AddControllers(x =>
 {
