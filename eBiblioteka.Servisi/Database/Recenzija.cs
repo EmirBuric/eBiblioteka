@@ -17,6 +17,8 @@ public partial class Recenzija
 
     public bool? Odobrena { get; set; }
 
+    public DateTime DatumRecenzije { get; set; }
+
     public virtual Knjiga? Knjiga { get; set; }
 
     public virtual Korisnik? Korisnik { get; set; }

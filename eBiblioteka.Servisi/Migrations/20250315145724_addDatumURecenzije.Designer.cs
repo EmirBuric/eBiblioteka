@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eBiblioteka.Servisi.Database;
 
@@ -11,9 +12,11 @@ using eBiblioteka.Servisi.Database;
 namespace eBiblioteka.Servisi.Migrations
 {
     [DbContext(typeof(Db180105Context))]
-    partial class Db180105ContextModelSnapshot : ModelSnapshot
+    [Migration("20250315145724_addDatumURecenzije")]
+    partial class addDatumURecenzije
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
