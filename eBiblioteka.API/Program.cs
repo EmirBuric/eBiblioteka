@@ -22,6 +22,9 @@ builder.Services.AddTransient<IKnjigaServis, KnjigaServis>();
 builder.Services.AddTransient<IKorisnikIzabranaKnjigaServis, KorisnikIzabranaKnjigServis>();
 builder.Services.AddTransient<IRezervacijaServis, RezervacijaServis>();
 builder.Services.AddTransient<IRecenzijaServis, RecenzijaServis>();
+builder.Services.AddTransient<ICitaonicaServis, CitaonicaServis>();
+builder.Services.AddTransient<ITerminServis, TerminServis>();
+builder.Services.AddTransient<IClanarinaServis, ClanarinaSerivis>();
 
 
 builder.Services.AddControllers(x =>
