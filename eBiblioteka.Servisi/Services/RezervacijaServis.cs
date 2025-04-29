@@ -5,6 +5,7 @@ using eBiblioteka.Servisi.Database;
 using eBiblioteka.Servisi.Interfaces;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,8 +16,20 @@ namespace eBiblioteka.Servisi.Services
 {
     public class RezervacijaServis : BaseCRUDServis<RezervacijaDTO, RezervacijaSearchObject, Rezervacija, RezervacijaUpsertRequest, RezervacijaUpsertRequest>, IRezervacijaServis
     {
-        public RezervacijaServis(Db180105Context context, IMapper mapper) : base(context, mapper)
+        private IChannel _channel;
+        public RezervacijaServis(Db180105Context context, IMapper mapper,ConnectionFactory factory) : base(context, mapper)
         {
+            Initialize(factory).GetAwaiter().GetResult();
+        }
+        private async Task Initialize(ConnectionFactory factory)
+        {
+            var connection = await factory.CreateConnectionAsync();
+            _channel = await connection.CreateChannelAsync();
+            await _channel.QueueDeclareAsync(queue: "reservationQueue",
+                                 durable: false,
+                                 exclusive: false,
+                                 autoDelete: false,
+                                 arguments: null);
         }
 
         public override IQueryable<Rezervacija> AddFilter(RezervacijaSearchObject search, IQueryable<Rezervacija> query)
@@ -62,17 +75,33 @@ namespace eBiblioteka.Servisi.Services
             return base.AddInclude(query, search);
         }
 
-        public override Task BeforeInsert(RezervacijaUpsertRequest insert, Rezervacija entity, CancellationToken cancellationToken = default)
+        public override async Task BeforeInsert(RezervacijaUpsertRequest insert, Rezervacija entity, CancellationToken cancellationToken = default)
         {
             entity.Odobrena=false;
             entity.Pregledana=false;
+
+            var korisnik= await Context.Korisniks.FirstOrDefaultAsync(x=>x.KorisnikId==entity.KorisnikId);
+
+            var korisnikEmail = korisnik.Email;
+
+            if(!string.IsNullOrEmpty(korisnikEmail))
+            {
+                var message = $"Rezervacija odobrena za {korisnikEmail}";
+                var body= Encoding.UTF8.GetBytes(message);     
+
+                await _channel.BasicPublishAsync(exchange: "",
+                    routingKey: "reservationQueue",
+                    mandatory: false,
+                    body: body);
+            }
+
 
             if (insert.DatumVracanja == null)
                 entity.DatumVracanja = insert.DatumRezervacije.AddDays(7);
             else
                 entity.DatumVracanja = insert.DatumVracanja.Value;
 
-            return base.BeforeInsert(insert, entity, cancellationToken);
+            await base.BeforeInsert(insert, entity, cancellationToken);
         }
 
         public override Task BeforeUpdate(RezervacijaUpsertRequest update, Rezervacija entity, CancellationToken cancellationToken = default)

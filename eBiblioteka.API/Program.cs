@@ -7,6 +7,7 @@ using Mapster;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +57,8 @@ builder.Services.AddSwaggerGen(c =>
 
 });
 
+var rabbitMqFactory = new ConnectionFactory() { HostName = builder.Configuration["RabbitMQ:HostName"] };
+builder.Services.AddSingleton(rabbitMqFactory);
 
 var connectionString = builder.Configuration.GetConnectionString("eBiblioteka");
 builder.Services.AddDbContext<Db180105Context>(options =>
