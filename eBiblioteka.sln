@@ -9,12 +9,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "eBiblioteka.Modeli", "eBibl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "eBiblioteka.Servisi", "eBiblioteka.Servisi\eBiblioteka.Servisi.csproj", "{12D5FE03-EC75-4FF2-AA17-6304BE90104B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eBiblioteka.Subscriber", "eBiblioteka.Subscriber\eBiblioteka.Subscriber.csproj", "{B397B6C0-17EB-4BE8-90DD-98D5AD84EC5A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "eBiblioteka.Subscriber", "eBiblioteka.Subscriber\eBiblioteka.Subscriber.csproj", "{B397B6C0-17EB-4BE8-90DD-98D5AD84EC5A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{12CB2967-9D2A-4859-ACC7-88AAF907FC41}"
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.yml = docker-compose.yml
 		Dockerfile = Dockerfile
+		SubscriberDockerfile = SubscriberDockerfile
 	EndProjectSection
 EndProject
 Global

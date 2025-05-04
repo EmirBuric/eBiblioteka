@@ -17,12 +17,21 @@ namespace eBiblioteka.Servisi.Services
     public class RezervacijaServis : BaseCRUDServis<RezervacijaDTO, RezervacijaSearchObject, Rezervacija, RezervacijaUpsertRequest, RezervacijaUpsertRequest>, IRezervacijaServis
     {
         private IChannel _channel;
-        public RezervacijaServis(Db180105Context context, IMapper mapper,ConnectionFactory factory) : base(context, mapper)
+        public RezervacijaServis(Db180105Context context, IMapper mapper) : base(context, mapper)
         {
-            Initialize(factory).GetAwaiter().GetResult();
+            Initialize().GetAwaiter().GetResult();
         }
-        private async Task Initialize(ConnectionFactory factory)
+        private async Task Initialize()
         {
+            var factory = new ConnectionFactory
+            {
+                HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
+                Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
+                UserName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME"),
+                Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD"),
+                VirtualHost = Environment.GetEnvironmentVariable("RABBITMQ_VIRTUALHOST") ?? "/"
+            };
+
             var connection = await factory.CreateConnectionAsync();
             _channel = await connection.CreateChannelAsync();
             await _channel.QueueDeclareAsync(queue: "reservationQueue",
