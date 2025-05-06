@@ -18,6 +18,8 @@
 
 # Mono auto generated files
 mono_crash.*
+/docker_data/
+
 
 # Build results
 [Dd]ebug/
@@ -483,4 +485,4 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
-\docker_data\
+

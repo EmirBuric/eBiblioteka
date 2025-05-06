@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=QWElkj132!
+      - SA_PASSWORD=${DB_PASSWORD}
       - MSSQL_PID=Developer
     ports:
       - 1401:1433
@@ -19,11 +19,11 @@ services:
     build:
       context: .
     environment:
-      - ConnectionStrings:eBiblioteka=Server=ebiblioteka-sql,1433;Database=eBiblioteka;User=sa;Password=QWElkj132!;ConnectRetryCount=0; TrustServerCertificate=True
+      - ConnectionStrings:eBiblioteka=Server=${DB_SERVER},1433;Database=${DB_NAME};User=${DB_USER};Password=${DB_PASSWORD}; TrustServerCertificate=True
       - ASPNETCORE_ENVIRONMENT=Development
       - RABBITMQ_HOST=erestorante-rabbitmq
-      - RABBITMQ_USERNAME=guest
-      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - RABBITMQ_VIRTUALHOST=/
       - RABBITMQ_PORT=5672
     ports:
@@ -47,8 +47,8 @@ services:
     expose:
       - 5672
     environment:
-      - RABBITMQ_DEFAULT_USER=guest 
-      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME} 
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     networks:
       - ebibliotekanet
     volumes:
@@ -67,13 +67,13 @@ services:
       dockerfile: SubscriberDockerfile
     environment:
       - RABBITMQ_HOST=ebiblioteka-rabbitmq
-      - RABBITMQ_USERNAME=guest
-      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - RABBITMQ_VIRTUALHOST=/
       - RABBITMQ_PORT=5672
-      - FromEmail=""
-      - SmtpPass=""
-      - SmtpUser=""
+      - FromEmail=${FROM_EMAIL}
+      - SmtpPass=${SMTP_PASS}
+      - SmtpUser=${SMTP_USER}
     depends_on:
       - ebiblioteka-rabbitmq
       - ebiblioteka-api

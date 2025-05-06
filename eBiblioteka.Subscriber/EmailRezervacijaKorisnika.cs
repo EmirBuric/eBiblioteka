@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Pqc.Crypto.Bike;
+using RabbitMQ.Client.Exceptions;
 
 namespace eBiblioteka.Subscriber
 {
@@ -36,8 +37,26 @@ namespace eBiblioteka.Subscriber
                 Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD"),
                 VirtualHost = Environment.GetEnvironmentVariable("RABBITMQ_VIRTUALHOST") ?? "/"
             };
-            var connection = await factory.CreateConnectionAsync();
-            _channel = await connection.CreateChannelAsync();
+            const int maxRetries = 5;
+            for (int retry = 0; retry < maxRetries; retry++)
+            {
+                try
+                {
+                    var connection = await factory.CreateConnectionAsync();
+                    _channel = await connection.CreateChannelAsync();
+                    Console.WriteLine("RabbitMQ spojen");
+                    return;
+                }
+                catch (BrokerUnreachableException)
+                {
+                    Console.WriteLine($"RabbitMQ ne radi, pokušavam ponovo za 5 sekundi... (pokušaj {retry + 1})");
+                    await Task.Delay(5000);
+                }
+            }
+
+            throw new Exception("Nije bilo moguće se spojiti sa RabbitMQ nakon više pokušaja");
+            //var connection = await factory.CreateConnectionAsync();
+            //_channel = await connection.CreateChannelAsync();
         }
 
         public async Task PosaljiEmailAsync()

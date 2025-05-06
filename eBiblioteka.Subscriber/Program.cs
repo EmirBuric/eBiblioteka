@@ -33,4 +33,4 @@ await emailRezervacijaKorisnika.PosaljiEmailAsync();
 
 
 Console.WriteLine("Listening for messages, press <return> to close");
-Console.ReadLine();
+await Task.Delay(Timeout.Infinite);
