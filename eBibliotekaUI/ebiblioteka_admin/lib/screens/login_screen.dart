@@ -1,21 +1,14 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
+import '../providers/knjiga_provider.dart';
+import '../providers/auth_provider.dart';
+import 'knjige_list_screen.dart';
 
 // Stateful widget for the Login screen.
-class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
-
-  @override
-  State<Login> createState() => _LoginState();
-}
-
-// State class for the Login widget.
-class _LoginState extends State<Login> {
-  // Map to store user data (if needed in the future).
-  Map userData = {};
-
-  // Key to manage the form state.
+class Login extends StatelessWidget {
+  Login({super.key});
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final _formkey = GlobalKey<FormState>();
 
   @override
@@ -23,10 +16,10 @@ class _LoginState extends State<Login> {
     return Scaffold(
       appBar: AppBar(
         // Title of the AppBar.
-        title: Text('eBiblioteka'),
+        title: const Text('eBiblioteka'),
 
         // Background color of the AppBar.
-        backgroundColor: Color.fromARGB(255, 101, 85, 143),
+        backgroundColor: const Color.fromARGB(255, 101, 85, 143),
 
         // Text color of the AppBar.
         foregroundColor: Colors.white,
@@ -64,7 +57,7 @@ class _LoginState extends State<Login> {
 
           // Form section for user input.
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Form(
@@ -81,7 +74,8 @@ class _LoginState extends State<Login> {
                               vertical: 25.0,
                             ),
                             child: TextFormField(
-                                validator: MultiValidator([
+                                controller: _usernameController,
+                                /*validator: MultiValidator([
                                   RequiredValidator(
 
                                       // Validation for required field.
@@ -90,17 +84,16 @@ class _LoginState extends State<Login> {
 
                                       // Validation for email format.
                                       errorText: 'Pogrešan format email-a'),
-                                ]),
-                                decoration: InputDecoration(
+                                ]).call,*/
+                                decoration: const InputDecoration(
 
                                     // Placeholder text.
-                                    hintText: 'Email',
+                                    hintText: 'Username',
 
                                     // Label for the field.
-                                    labelText: 'Email',
+                                    labelText: 'Username',
                                     prefixIcon: Icon(
-                                      // Email icon.
-                                      Icons.email,
+                                      Icons.person,
                                     ),
 
                                     // Error message styling.
@@ -120,7 +113,8 @@ class _LoginState extends State<Login> {
                             vertical: 12.0,
                           ),
                           child: TextFormField(
-                            validator: MultiValidator([
+                            controller: _passwordController,
+                            /* validator: MultiValidator([
                               RequiredValidator(
 
                                   // Validation for required field.
@@ -135,8 +129,8 @@ class _LoginState extends State<Login> {
                                   // Special character validation.
                                   errorText:
                                       'Lozinka mora imati barem jedan poseban karakter')
-                            ]),
-                            decoration: InputDecoration(
+                            ]).call,*/
+                            decoration: const InputDecoration(
                               // Placeholder text.
                               hintText: 'Lozinka',
 
@@ -166,36 +160,61 @@ class _LoginState extends State<Login> {
                             horizontal: MediaQuery.of(context).size.width * 0.2,
                             vertical: 25.0,
                           ),
-                          child: Container(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width,
+
+                            // Button height.
+                            height: 50,
                             child: ElevatedButton(
-                                child: Text(
+                                onPressed: () async {
+                                  //if (_formkey.currentState!.validate()) {
+                                  KnjigaProvider provider = KnjigaProvider();
+                                  print(
+                                      "Credentials: ${_usernameController.text} : ${_passwordController.text}");
+                                  AuthProvider.username =
+                                      _usernameController.text;
+                                  AuthProvider.password =
+                                      _passwordController.text;
+                                  try {
+                                    var data = await provider.get();
+                                    print("Authenticated!");
+
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                KnjigeListScreen()));
+                                  } on Exception catch (e) {
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                              title: Text("Error"),
+                                              actions: [
+                                                TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(context),
+                                                    child: Text("Ok"))
+                                              ],
+                                              content: Text(e.toString()),
+                                            ));
+                                  }
+                                  //}
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  // Button background color.
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 101, 85, 143),
+
+                                  // Button text color.
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text(
                                   'Prijavi se',
                                   style: TextStyle(
 
                                       // Button text styling.
                                       color: Colors.white,
                                       fontSize: 22),
-                                ),
-                                onPressed: () {
-                                  if (_formkey.currentState!.validate()) {
-                                    // Prints a message if the form is valid.
-                                    print('form submitted');
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  // Button background color.
-                                  backgroundColor:
-                                      Color.fromARGB(255, 101, 85, 143),
-
-                                  // Button text color.
-                                  foregroundColor: Colors.white,
                                 )),
-
-                            // Button width.
-                            width: MediaQuery.of(context).size.width,
-
-                            // Button height.
-                            height: 50,
                           ),
                         ),
                       ]),

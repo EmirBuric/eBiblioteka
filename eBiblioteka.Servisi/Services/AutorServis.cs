@@ -20,12 +20,6 @@ namespace eBiblioteka.Servisi.Services
         public override IQueryable<Autor> AddFilter(AutorSearchObject search, IQueryable<Autor> query)
         {
 
-            var bus = RabbitHutch.CreateBus("host=localhost", serviceRegister => serviceRegister.Register<ISerializer>(_ => new NewtonsoftJsonSerializer()));
-
-            AutoriSearched message= new AutoriSearched { Autori= search };
-
-            bus.PubSub.Publish(message);
-
             if (!string.IsNullOrEmpty(search?.ImeGTE) || !string.IsNullOrEmpty(search?.PrezimeGTE))
             {
                 query = query.Where(x => x.Ime.ToLower().StartsWith(search.ImeGTE)
