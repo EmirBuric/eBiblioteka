@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ebiblioteka_admin/layouts/master_screen.dart';
 import '../providers/knjiga_provider.dart';
+import '../providers/zanr_provider.dart';
+import '../providers/autor_provider.dart';
+import '../providers/knjiga_autor_provider.dart';
 import '../models/knjiga.dart';
+import 'dart:async';
+import 'knjiga_dodaj_screen.dart';
 
 class KnjigeListScreen extends StatefulWidget {
   const KnjigeListScreen({super.key});
@@ -13,20 +18,93 @@ class KnjigeListScreen extends StatefulWidget {
 class _KnjigeListScreenState extends State<KnjigeListScreen> {
   final TextEditingController _searchController = TextEditingController();
   final KnjigaProvider _knjigaProvider = KnjigaProvider();
+  final ZanrProvider _zanrProvider = ZanrProvider();
+  final AutorProvider _autorProvider = AutorProvider();
+  final KnjigaAutorProvider _knjigaAutorProvider = KnjigaAutorProvider();
   List<Knjiga> books = [];
+  Map<int, String> zanrNames = {};
+  Map<int, List<String>> knjigeAutori = {};
   bool isLoading = true;
+  String searchQuery = "";
+  Timer? _debounce;
+
+  int currentPage = 1;
+  int pageSize = 8;
+  int totalItems = 0;
 
   @override
   void initState() {
     super.initState();
+    _searchController.addListener(_onSearchChanged);
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        searchQuery = _searchController.text;
+        currentPage = 1;
+      });
+      _loadData();
+    });
   }
 
   Future<void> _loadData() async {
     try {
-      var data = await _knjigaProvider.get();
+      setState(() {
+        isLoading = true;
+      });
+
+      Map<String, dynamic> filter = {
+        'PageNumber': currentPage,
+        'PageSize': pageSize,
+      };
+
+      if (searchQuery.isNotEmpty) {
+        filter['NazivGTE'] = searchQuery;
+      }
+
+      var data = await _knjigaProvider.get(filter: filter);
+
+      var zanroviData = await _zanrProvider.get();
+      var autoriData = await _autorProvider.get();
+      var knjigeAutoriData = await _knjigaAutorProvider.get();
+
+      var zanroviMap = {
+        for (var zanr in zanroviData.result)
+          zanr.zanrId ?? 0: zanr.naziv ?? "Nepoznat žanr"
+      };
+
+      var autoriMap = {
+        for (var autor in autoriData.result)
+          autor.autorId ?? 0: "${autor.ime} ${autor.prezime}"
+      };
+
+      var knjigeAutoriMap = <int, List<String>>{};
+      for (var knjigaAutor in knjigeAutoriData.result) {
+        var knjigaId = knjigaAutor.knjigaId;
+        var autorId = knjigaAutor.autorId;
+        if (knjigaId != null && autorId != null) {
+          knjigeAutoriMap.putIfAbsent(knjigaId, () => []);
+          var autorIme = autoriMap[autorId] ?? "Nepoznat autor";
+          knjigeAutoriMap[knjigaId]!.add(autorIme);
+        }
+      }
+
       setState(() {
         books = data.result;
+        totalItems = data.count;
+        zanrNames = zanroviMap;
+        knjigeAutori = knjigeAutoriMap;
         isLoading = false;
       });
     } catch (e) {
@@ -49,6 +127,13 @@ class _KnjigeListScreenState extends State<KnjigeListScreen> {
         );
       }
     }
+  }
+
+  void _changePage(int newPage) {
+    setState(() {
+      currentPage = newPage;
+    });
+    _loadData();
   }
 
   @override
@@ -88,7 +173,13 @@ class _KnjigeListScreenState extends State<KnjigeListScreen> {
                     const SizedBox(height: 10),
                     ElevatedButton(
                       onPressed: () {
-                        // Handle adding book
+                        Navigator.of(context)
+                            .push(
+                              MaterialPageRoute(
+                                builder: (context) => const KnjigaDodajScreen(),
+                              ),
+                            )
+                            .then((_) => _loadData());
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green),
@@ -102,112 +193,158 @@ class _KnjigeListScreenState extends State<KnjigeListScreen> {
               if (isLoading)
                 const CircularProgressIndicator()
               else
-                // Book cards
-                Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: GridView.builder(
-                    itemCount: books.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      mainAxisSpacing: 15,
-                      crossAxisSpacing: 15,
-                      childAspectRatio: 0.8,
-                    ),
-                    itemBuilder: (context, index) {
-                      final book = books[index];
-                      return Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(8),
-                                    topRight: Radius.circular(8),
+                Column(
+                  children: [
+                    // Book cards
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: GridView.builder(
+                        itemCount: books.length,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                          mainAxisSpacing: 15,
+                          crossAxisSpacing: 15,
+                          childAspectRatio: 0.8,
+                        ),
+                        itemBuilder: (context, index) {
+                          final book = books[index];
+                          return Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(8),
+                                        topRight: Radius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.image,
+                                      size: 40,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                 ),
-                                child: const Icon(
-                                  Icons.image,
-                                  size: 40,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 3,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Žanr", // TODO: Dodati žanr u model
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      book.naziv ?? "Bez naziva",
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      book.kratkiOpis ?? "Bez opisa",
-                                      maxLines: 3,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: book.dostupna ?? false
-                                            ? Colors.green[100]
-                                            : Colors.red[100],
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        book.dostupna ?? false
-                                            ? 'Dostupna'
-                                            : 'Nedostupna',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: book.dostupna ?? false
-                                              ? Colors.green[800]
-                                              : Colors.red[800],
+                                Expanded(
+                                  flex: 3,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          zanrNames[book.zanrId] ??
+                                              "Nepoznat žanr",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600],
+                                          ),
                                         ),
-                                      ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          book.naziv ?? "Bez naziva",
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          knjigeAutori[book.knjigaId]
+                                                  ?.join(", ") ??
+                                              "Nepoznat autor",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600],
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          book.kratkiOpis ?? "Bez opisa",
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: book.dostupna ?? false
+                                                ? Colors.green[100]
+                                                : Colors.red[100],
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            book.dostupna ?? false
+                                                ? 'Dostupna'
+                                                : 'Nedostupna',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: book.dostupna ?? false
+                                                  ? Colors.green[800]
+                                                  : Colors.red[800],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    if (totalItems > 0)
+                      Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.chevron_left),
+                              onPressed: currentPage > 1
+                                  ? () => _changePage(currentPage - 1)
+                                  : null,
+                            ),
+                            const SizedBox(width: 20),
+                            Text(
+                              'Stranica $currentPage od ${(totalItems / pageSize).ceil()}',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            const SizedBox(width: 20),
+                            IconButton(
+                              icon: const Icon(Icons.chevron_right),
+                              onPressed:
+                                  currentPage < (totalItems / pageSize).ceil()
+                                      ? () => _changePage(currentPage + 1)
+                                      : null,
                             ),
                           ],
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                  ],
                 ),
             ],
           ),

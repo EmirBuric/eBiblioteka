@@ -9,6 +9,9 @@ part of 'knjiga.dart';
 Knjiga _$KnjigaFromJson(Map<String, dynamic> json) => Knjiga(
       knjigaId: (json['knjigaId'] as num?)?.toInt(),
       naziv: json['naziv'] as String?,
+      autoriIds: (json['autoriIds'] as List<dynamic>?)
+          ?.map((e) => (e as num).toInt())
+          .toList(),
     )
       ..kratkiOpis = json['kratkiOpis'] as String?
       ..godinaIzdanja = (json['godinaIzdanja'] as num?)?.toInt()
@@ -36,4 +39,5 @@ Map<String, dynamic> _$KnjigaToJson(Knjiga instance) => <String, dynamic>{
       'kolicina': instance.kolicina,
       'dostupna': instance.dostupna,
       'knjigaDana': instance.knjigaDana,
+      'autoriIds': instance.autoriIds,
     };
