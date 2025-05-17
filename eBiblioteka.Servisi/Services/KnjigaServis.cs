@@ -1,10 +1,13 @@
-﻿using eBiblioteka.Modeli.DTOs;
+﻿using Azure.Core;
+using eBiblioteka.Modeli.DTOs;
+using eBiblioteka.Modeli.Exceptions;
 using eBiblioteka.Modeli.SearchObjects;
 using eBiblioteka.Modeli.UpsertRequest;
 using eBiblioteka.Servisi.Database;
 using eBiblioteka.Servisi.Interfaces;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace eBiblioteka.Servisi.Services
 {
-    public class KnjigaServis : BaseCRUDServis<KnjigaDTO, KnjigaSearchObject, Knjiga, KnjigaInsertRequest, KnjigaUpdateRequest>,IKnjigaServis
+    public class KnjigaServis : BaseCRUDServis<KnjigaDTO, KnjigaSearchObject, Knjiga, KnjigaInsertRequest, KnjigaUpdateRequest>, IKnjigaServis
     {
         public KnjigaServis(Db180105Context context, IMapper mapper) : base(context, mapper)
         {
@@ -21,6 +24,8 @@ namespace eBiblioteka.Servisi.Services
 
         public override IQueryable<Knjiga> AddFilter(KnjigaSearchObject search, IQueryable<Knjiga> query)
         {
+            query= query.Where(x=>x.IsDeleted==false);
+
             if (!string.IsNullOrEmpty(search.NazivGTE))
             {
                 query = query.Where(x => x.Naziv.ToLower().StartsWith(search.NazivGTE));
@@ -61,9 +66,9 @@ namespace eBiblioteka.Servisi.Services
 
         public override async Task BeforeInsert(KnjigaInsertRequest insert, Knjiga entity, CancellationToken cancellationToken = default)
         {
-            if(insert.Kolicina==0)
+            if (insert.Kolicina == 0)
             {
-                entity.Dostupna=false;
+                entity.Dostupna = false;
             }
 
         }
@@ -92,6 +97,57 @@ namespace eBiblioteka.Servisi.Services
             {
                 entity.Dostupna = false;
             }
+            if (update?.Autori != null)
+            {
+                var knjigaAutori = await Context
+               .KnjigaAutors
+               .Where(x => x.KnjigaId == entity.KnjigaId)
+               .ToListAsync(cancellationToken);
+
+                var noviAutori = update
+                    .Autori
+                    .Where(x => !knjigaAutori.Select(x => x.AutorId).Contains(x)).ToList();
+
+                var nepotrebniAutori = knjigaAutori
+                    .Where(x => !update.Autori.Contains((int)x.AutorId)).ToList();
+
+                foreach (var x in noviAutori)
+                {
+                    await Context.KnjigaAutors.AddAsync(new KnjigaAutor
+                    {
+                        AutorId = x,
+                        KnjigaId = entity.KnjigaId,
+                    });
+                }
+
+                foreach (var x in nepotrebniAutori)
+                {
+                    Context.KnjigaAutors.Remove(x);
+                }
+
+                await Context.SaveChangesAsync();
+            }
+            else
+            {
+                throw new UserException("Autori moraju imati vrijednost!");
+            }
+        }
+
+
+        public async Task Delete(int id)
+        {
+            var knjiga= await Context.Knjigas.FirstOrDefaultAsync(x => x.KnjigaId == id);
+
+            if (knjiga == null)
+            {
+                throw new UserException("Nemoguće pronaći knjigu sa ovim Id-om");
+            }
+
+            knjiga.IsDeleted = true;
+            knjiga.VrijemeBrisanja=DateTime.Now;
+            Context.Update(knjiga);
+
+            await Context.SaveChangesAsync();
         }
     }
 }

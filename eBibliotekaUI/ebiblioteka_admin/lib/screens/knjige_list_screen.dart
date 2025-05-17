@@ -7,6 +7,7 @@ import '../providers/knjiga_autor_provider.dart';
 import '../models/knjiga.dart';
 import 'dart:async';
 import 'knjiga_dodaj_screen.dart';
+import '../providers/utils.dart';
 
 class KnjigeListScreen extends StatefulWidget {
   const KnjigeListScreen({super.key});
@@ -65,7 +66,7 @@ class _KnjigeListScreenState extends State<KnjigeListScreen> {
       });
 
       Map<String, dynamic> filter = {
-        'PageNumber': currentPage,
+        'Page': currentPage,
         'PageSize': pageSize,
       };
 
@@ -111,6 +112,37 @@ class _KnjigeListScreenState extends State<KnjigeListScreen> {
       setState(() {
         isLoading = false;
       });
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Greška"),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteKnjiga(int knjigaId) async {
+    try {
+      await _knjigaProvider.Delete(knjigaId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Knjiga je uspješno obrisana'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      _loadData();
+    } catch (e) {
       if (mounted) {
         showDialog(
           context: context,
@@ -229,11 +261,21 @@ class _KnjigeListScreenState extends State<KnjigeListScreen> {
                                         topRight: Radius.circular(8),
                                       ),
                                     ),
-                                    child: const Icon(
-                                      Icons.image,
-                                      size: 40,
-                                      color: Colors.grey,
-                                    ),
+                                    child: book.slika != null &&
+                                            book.slika!.isNotEmpty
+                                        ? ClipRRect(
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                              topLeft: Radius.circular(8),
+                                              topRight: Radius.circular(8),
+                                            ),
+                                            child: imageFromString(book.slika!),
+                                          )
+                                        : const Icon(
+                                            Icons.image,
+                                            size: 40,
+                                            color: Colors.grey,
+                                          ),
                                   ),
                                 ),
                                 Expanded(
@@ -282,29 +324,98 @@ class _KnjigeListScreenState extends State<KnjigeListScreen> {
                                           ),
                                         ),
                                         const Spacer(),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: book.dostupna ?? false
-                                                ? Colors.green[100]
-                                                : Colors.red[100],
-                                            borderRadius:
-                                                BorderRadius.circular(4),
-                                          ),
-                                          child: Text(
-                                            book.dostupna ?? false
-                                                ? 'Dostupna'
-                                                : 'Nedostupna',
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              color: book.dostupna ?? false
-                                                  ? Colors.green[800]
-                                                  : Colors.red[800],
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 4,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: book.dostupna ?? false
+                                                    ? Colors.green[100]
+                                                    : Colors.red[100],
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                              child: Text(
+                                                book.dostupna ?? false
+                                                    ? 'Dostupna'
+                                                    : 'Nedostupna',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: book.dostupna ?? false
+                                                      ? Colors.green[800]
+                                                      : Colors.red[800],
+                                                ),
+                                              ),
                                             ),
-                                          ),
+                                            Row(
+                                              children: [
+                                                IconButton(
+                                                  icon: const Icon(Icons.edit,
+                                                      size: 20),
+                                                  onPressed: () {
+                                                    Navigator.of(context)
+                                                        .push(
+                                                          MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                KnjigaDodajScreen(
+                                                              knjiga: book,
+                                                            ),
+                                                          ),
+                                                        )
+                                                        .then(
+                                                            (_) => _loadData());
+                                                  },
+                                                  color: const Color.fromARGB(
+                                                      255, 101, 85, 143),
+                                                ),
+                                                IconButton(
+                                                  icon: const Icon(Icons.delete,
+                                                      size: 20),
+                                                  onPressed: () {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          AlertDialog(
+                                                        title: const Text(
+                                                            "Potvrda brisanja"),
+                                                        content: const Text(
+                                                            "Da li ste sigurni da želite obrisati ovu knjigu?"),
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed: () =>
+                                                                Navigator.pop(
+                                                                    context),
+                                                            child: const Text(
+                                                                "Odustani"),
+                                                          ),
+                                                          TextButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                              _deleteKnjiga(book
+                                                                  .knjigaId!);
+                                                            },
+                                                            child: const Text(
+                                                                "Obriši",
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .red)),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                  color: Colors.red,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),

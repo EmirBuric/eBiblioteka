@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ebiblioteka_admin/layouts/master_screen.dart';
 import '../providers/autor_provider.dart';
-import '../models/autor.dart';
 
 class AutorDodajScreen extends StatefulWidget {
   final Function? onAutorAdded;
@@ -52,6 +51,16 @@ class _AutorDodajScreenState extends State<AutorDodajScreen> {
           'datumRodjenja': _selectedDate?.toIso8601String(),
           'biografija': _biografijaController.text,
         };
+
+        if (_selectedDate == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Datum rođenja je obavezno polje'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
 
         await _autorProvider.insert(autor);
 
@@ -124,10 +133,13 @@ class _AutorDodajScreenState extends State<AutorDodajScreen> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Obavezno polje';
+                                return 'Ovo polje ne može biti prazno';
                               }
                               if (value.length < 2) {
                                 return 'Ime mora imati najmanje 2 karaktera';
+                              }
+                              if (value.length > 50) {
+                                return 'Ime ne može imati više od 50 karaktera';
                               }
                               return null;
                             },
@@ -148,10 +160,13 @@ class _AutorDodajScreenState extends State<AutorDodajScreen> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Obavezno polje';
+                                return 'Ovo polje ne može biti prazno';
                               }
                               if (value.length < 2) {
                                 return 'Prezime mora imati najmanje 2 karaktera';
+                              }
+                              if (value.length > 50) {
+                                return 'Prezime ne može imati više od 50 karaktera';
                               }
                               return null;
                             },
@@ -200,6 +215,12 @@ class _AutorDodajScreenState extends State<AutorDodajScreen> {
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                       ),
                       maxLines: 5,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Biografija je obavezno polje';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 32),
                     Center(

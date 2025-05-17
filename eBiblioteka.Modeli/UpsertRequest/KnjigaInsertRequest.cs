@@ -18,12 +18,12 @@ namespace eBiblioteka.Modeli.UpsertRequest
         [Range(1, 2025, ErrorMessage = "Godina izdanja može biti od 0 do 2025")]
         public int GodinaIzdanja { get; set; }
 
-        //public byte[]? Slika { get; set; }
+        public byte[]? Slika { get; set; }
 
         public int? ZanrId { get; set; }
 
         [Required(ErrorMessage = "Ovo polje ne može biti prazno")]
-        [Range(1, int.MaxValue, ErrorMessage = "Količina mora biti najmanje 1")]
+        [Range(0, int.MaxValue, ErrorMessage = "Količina mora biti najmanje 0")]
         public int Kolicina { get; set; }
        
         public List<int> Autori { get; set; }

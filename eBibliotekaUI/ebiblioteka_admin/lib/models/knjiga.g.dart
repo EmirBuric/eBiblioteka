@@ -15,9 +15,7 @@ Knjiga _$KnjigaFromJson(Map<String, dynamic> json) => Knjiga(
     )
       ..kratkiOpis = json['kratkiOpis'] as String?
       ..godinaIzdanja = (json['godinaIzdanja'] as num?)?.toInt()
-      ..slika = (json['slika'] as List<dynamic>?)
-          ?.map((e) => (e as num).toInt())
-          .toList()
+      ..slika = json['slika'] as String?
       ..zanrId = (json['zanrId'] as num?)?.toInt()
       ..isDeleted = json['isDeleted'] as bool?
       ..vrijemeBrisanja = json['vrijemeBrisanja'] == null

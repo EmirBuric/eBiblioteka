@@ -8,7 +8,7 @@ class Knjiga {
   String? naziv;
   String? kratkiOpis;
   int? godinaIzdanja;
-  List<int>? slika;
+  String? slika;
   int? zanrId;
   bool? isDeleted;
   DateTime? vrijemeBrisanja;
@@ -32,7 +32,7 @@ class KnjigaInsert {
   String? naziv;
   String? kratkiOpis;
   int? godinaIzdanja;
-  List<int>? slika; // image bytes
+  String? slika; // image bytes
   int? zanrId;
   int? kolicina;
   List<int>? autori;

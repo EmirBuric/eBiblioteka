@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:ebiblioteka_admin/models/search_result.dart';
@@ -77,6 +78,17 @@ abstract class BaseProvider<T> with ChangeNotifier {
       return fromJson(data);
     } else {
       throw new Exception("Unknown error");
+    }
+  }
+
+  Future Delete(int id) async {
+    var url = "$_baseUrl$_endpoint/Delete/$id";
+    var uri = Uri.parse(url);
+    var headers = createHeaders();
+
+    var response = await http.post(uri, headers: headers);
+    if (!isValidResponse(response)) {
+      throw new Exception("Greška prilikom brisanja");
     }
   }
 

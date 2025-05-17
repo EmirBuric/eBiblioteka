@@ -3,12 +3,19 @@ import 'package:ebiblioteka_admin/layouts/master_screen.dart';
 import '../providers/knjiga_provider.dart';
 import '../providers/zanr_provider.dart';
 import '../providers/autor_provider.dart';
+import '../providers/knjiga_autor_provider.dart';
 import '../models/zanr.dart';
 import '../models/autor.dart';
+import '../models/knjiga.dart';
 import 'autor_dodaj_screen.dart';
+import 'dart:io';
+import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
+import '../providers/utils.dart';
 
 class KnjigaDodajScreen extends StatefulWidget {
-  const KnjigaDodajScreen({super.key});
+  final Knjiga? knjiga;
+  const KnjigaDodajScreen({super.key, this.knjiga});
 
   @override
   State<KnjigaDodajScreen> createState() => _KnjigaDodajScreenState();
@@ -19,6 +26,7 @@ class _KnjigaDodajScreenState extends State<KnjigaDodajScreen> {
   final KnjigaProvider _knjigaProvider = KnjigaProvider();
   final ZanrProvider _zanrProvider = ZanrProvider();
   final AutorProvider _autorProvider = AutorProvider();
+  final KnjigaAutorProvider _knjigaAutorProvider = KnjigaAutorProvider();
   final TextEditingController _autorSearchController = TextEditingController();
   bool isLoading = true;
 
@@ -37,7 +45,26 @@ class _KnjigaDodajScreenState extends State<KnjigaDodajScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadData().then((_) {
+      if (widget.knjiga != null) {
+        _nazivController.text = widget.knjiga!.naziv ?? '';
+        _kratkiOpisController.text = widget.knjiga!.kratkiOpis ?? '';
+        _godinaIzdanjaController.text =
+            widget.knjiga!.godinaIzdanja?.toString() ?? '';
+        _kolicinaController.text = widget.knjiga!.kolicina?.toString() ?? '';
+        selectedZanrId = widget.knjiga!.zanrId;
+
+        if (widget.knjiga!.slika != null && widget.knjiga!.slika!.isNotEmpty) {
+          setState(() {
+            _base64Image = widget.knjiga!.slika;
+            _image = null; // Postavljamo na null jer koristimo base64 sliku
+          });
+        }
+
+        // Učitaj autore za knjigu
+        _loadAutoriForKnjiga();
+      }
+    });
     _autorSearchController.addListener(_filterAutori);
   }
 
@@ -96,6 +123,36 @@ class _KnjigaDodajScreenState extends State<KnjigaDodajScreen> {
     }
   }
 
+  Future<void> _loadAutoriForKnjiga() async {
+    try {
+      if (widget.knjiga != null) {
+        var response = await _knjigaAutorProvider
+            .get(filter: {'KnjigaId': widget.knjiga!.knjigaId});
+
+        setState(() {
+          selectedAutori =
+              response.result.map<int>((ka) => ka.autorId!).toList();
+        });
+      }
+    } catch (e) {
+      print("Error pri učitavanju autora: $e");
+    }
+  }
+
+  File? _image;
+  String? _base64Image;
+
+  void getImage() async {
+    var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        _image = File(result.files.single.path!);
+        _base64Image = base64Encode(_image!.readAsBytesSync());
+      });
+    }
+  }
+
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       try {
@@ -108,9 +165,15 @@ class _KnjigaDodajScreenState extends State<KnjigaDodajScreen> {
           'autori': selectedAutori,
           'dostupna': true,
           'knjigaDana': false,
+          'slika': _base64Image,
         };
 
-        await _knjigaProvider.insert(knjiga);
+        if (widget.knjiga != null) {
+          await _knjigaProvider.update(widget.knjiga!.knjigaId!, knjiga);
+        } else {
+          await _knjigaProvider.insert(knjiga);
+        }
+
         if (mounted) {
           Navigator.of(context).pop();
         }
@@ -135,7 +198,7 @@ class _KnjigaDodajScreenState extends State<KnjigaDodajScreen> {
   @override
   Widget build(BuildContext context) {
     return MasterScreen(
-      "Dodaj knjigu",
+      widget.knjiga != null ? "Uredi knjigu" : "Dodaj knjigu",
       isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -153,12 +216,130 @@ class _KnjigaDodajScreenState extends State<KnjigaDodajScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Dodaj novu knjigu',
-                            style: TextStyle(
+                          Text(
+                            widget.knjiga != null
+                                ? 'Uredi knjigu'
+                                : 'Dodaj novu knjigu',
+                            style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Color.fromARGB(255, 101, 85, 143),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Slika knjige',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color.fromARGB(255, 101, 85, 143),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Center(
+                                  child: _image != null
+                                      ? Stack(
+                                          children: [
+                                            Image.file(
+                                              _image!,
+                                              height: 200,
+                                              width: 150,
+                                              fit: BoxFit.cover,
+                                            ),
+                                            Positioned(
+                                              top: 0,
+                                              right: 0,
+                                              child: IconButton(
+                                                icon: const Icon(Icons.close),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _image = null;
+                                                    _base64Image = null;
+                                                  });
+                                                },
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : _base64Image != null
+                                          ? Stack(
+                                              children: [
+                                                SizedBox(
+                                                  height: 200,
+                                                  width: 150,
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    child: imageFromString(
+                                                        _base64Image!),
+                                                  ),
+                                                ),
+                                                Positioned(
+                                                  top: 0,
+                                                  right: 0,
+                                                  child: IconButton(
+                                                    icon:
+                                                        const Icon(Icons.close),
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        _image = null;
+                                                        _base64Image = null;
+                                                      });
+                                                    },
+                                                    color: Colors.red,
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          : Container(
+                                              height: 200,
+                                              width: 150,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey.shade100,
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              child: const Icon(
+                                                Icons.image,
+                                                size: 50,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                ),
+                                const SizedBox(height: 12),
+                                Center(
+                                  child: ElevatedButton.icon(
+                                    onPressed: getImage,
+                                    icon: const Icon(Icons.upload,
+                                        color: Colors.white),
+                                    label: const Text(
+                                      'Odaberi sliku',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color.fromARGB(
+                                          255, 101, 85, 143),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -254,8 +435,8 @@ class _KnjigaDodajScreenState extends State<KnjigaDodajScreen> {
                                     if (kolicina == null) {
                                       return 'Unesite broj';
                                     }
-                                    if (kolicina < 1) {
-                                      return 'Min. 1';
+                                    if (kolicina < 0) {
+                                      return 'Min. 0';
                                     }
                                     return null;
                                   },

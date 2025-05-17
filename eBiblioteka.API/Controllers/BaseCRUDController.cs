@@ -1,11 +1,13 @@
 ﻿using eBiblioteka.Modeli.SearchObjects;
 using eBiblioteka.Servisi.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eBiblioteka.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class BaseCRUDController<TModel,TSearch,TInsert,TUpdate> :
         BaseController<TModel,TSearch> 
         where TModel : class
