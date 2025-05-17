@@ -15,5 +15,7 @@ public partial class Autor
 
     public string? Biografija { get; set; }
 
+    public byte[]? Slika { get; set; }
+
     public virtual ICollection<KnjigaAutor> KnjigaAutors { get; set; } = new List<KnjigaAutor>();
 }

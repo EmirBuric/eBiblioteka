@@ -247,96 +247,65 @@ class _KnjigaDodajScreenState extends State<KnjigaDodajScreen> {
                                 ),
                                 const SizedBox(height: 12),
                                 Center(
-                                  child: _image != null
-                                      ? Stack(
-                                          children: [
-                                            Image.file(
-                                              _image!,
-                                              height: 200,
-                                              width: 150,
-                                              fit: BoxFit.cover,
-                                            ),
-                                            Positioned(
-                                              top: 0,
-                                              right: 0,
-                                              child: IconButton(
-                                                icon: const Icon(Icons.close),
-                                                onPressed: () {
-                                                  setState(() {
-                                                    _image = null;
-                                                    _base64Image = null;
-                                                  });
-                                                },
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                      : _base64Image != null
-                                          ? Stack(
-                                              children: [
-                                                SizedBox(
-                                                  height: 200,
-                                                  width: 150,
-                                                  child: ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                    child: imageFromString(
-                                                        _base64Image!),
-                                                  ),
-                                                ),
-                                                Positioned(
-                                                  top: 0,
-                                                  right: 0,
-                                                  child: IconButton(
-                                                    icon:
-                                                        const Icon(Icons.close),
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        _image = null;
-                                                        _base64Image = null;
-                                                      });
-                                                    },
-                                                    color: Colors.red,
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          : Container(
-                                              height: 200,
-                                              width: 150,
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey.shade100,
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        width: 200,
+                                        height: 200,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[200],
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: _image != null
+                                            ? ClipRRect(
                                                 borderRadius:
                                                     BorderRadius.circular(10),
-                                              ),
-                                              child: const Icon(
-                                                Icons.image,
-                                                size: 50,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                ),
-                                const SizedBox(height: 12),
-                                Center(
-                                  child: ElevatedButton.icon(
-                                    onPressed: getImage,
-                                    icon: const Icon(Icons.upload,
-                                        color: Colors.white),
-                                    label: const Text(
-                                      'Odaberi sliku',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color.fromARGB(
-                                          255, 101, 85, 143),
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 12),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
+                                                child: Image.file(
+                                                  _image!,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )
+                                            : _base64Image != null
+                                                ? ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    child: imageFromString(
+                                                        _base64Image!),
+                                                  )
+                                                : const Icon(
+                                                    Icons.book,
+                                                    size: 100,
+                                                    color: Colors.grey,
+                                                  ),
                                       ),
-                                    ),
+                                      const SizedBox(height: 10),
+                                      ElevatedButton.icon(
+                                        onPressed: getImage,
+                                        icon: const Icon(Icons.upload),
+                                        label: const Text('Dodaj sliku'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color.fromARGB(
+                                              255, 101, 85, 143),
+                                          foregroundColor: Colors.white,
+                                        ),
+                                      ),
+                                      if (_image != null ||
+                                          _base64Image != null)
+                                        TextButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _image = null;
+                                              _base64Image = null;
+                                            });
+                                          },
+                                          child: const Text(
+                                            'Ukloni sliku',
+                                            style: TextStyle(color: Colors.red),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 ),
                               ],

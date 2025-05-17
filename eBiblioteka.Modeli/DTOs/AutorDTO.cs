@@ -15,6 +15,9 @@ namespace eBiblioteka.Modeli.DTOs
         public DateTime? DatumRodjenja { get; set; }
 
         public string? Biografija { get; set; }
+
+        public byte[]? Slika { get; set; }
+
         public ICollection<KnjigaAutorDTO>? KnjigaAutors { get; set; }
     }
 }

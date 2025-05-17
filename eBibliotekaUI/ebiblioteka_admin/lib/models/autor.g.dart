@@ -14,7 +14,8 @@ Autor _$AutorFromJson(Map<String, dynamic> json) => Autor(
       ..datumRodjenja = json['datumRodjenja'] == null
           ? null
           : DateTime.parse(json['datumRodjenja'] as String)
-      ..biografija = json['biografija'] as String?;
+      ..biografija = json['biografija'] as String?
+      ..slika = json['slika'] as String?;
 
 Map<String, dynamic> _$AutorToJson(Autor instance) => <String, dynamic>{
       'autorId': instance.autorId,
@@ -22,4 +23,5 @@ Map<String, dynamic> _$AutorToJson(Autor instance) => <String, dynamic>{
       'prezime': instance.prezime,
       'datumRodjenja': instance.datumRodjenja?.toIso8601String(),
       'biografija': instance.biografija,
+      'slika': instance.slika,
     };

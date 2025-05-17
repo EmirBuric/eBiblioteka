@@ -9,6 +9,7 @@ class Autor {
   String? prezime;
   DateTime? datumRodjenja;
   String? biografija;
+  String? slika;
 
   Autor({this.autorId, this.ime, this.prezime});
 

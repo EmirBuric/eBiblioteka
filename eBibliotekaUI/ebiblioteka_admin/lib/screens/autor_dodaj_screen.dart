@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:ebiblioteka_admin/layouts/master_screen.dart';
 import '../providers/autor_provider.dart';
+import '../models/autor.dart';
+import 'dart:io';
+import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
+import '../providers/utils.dart';
 
 class AutorDodajScreen extends StatefulWidget {
   final Function? onAutorAdded;
+  final Autor? autor;
 
-  const AutorDodajScreen({super.key, this.onAutorAdded});
+  const AutorDodajScreen({super.key, this.onAutorAdded, this.autor});
 
   @override
   State<AutorDodajScreen> createState() => _AutorDodajScreenState();
@@ -19,6 +25,32 @@ class _AutorDodajScreenState extends State<AutorDodajScreen> {
   final TextEditingController _imeController = TextEditingController();
   final TextEditingController _prezimeController = TextEditingController();
   final TextEditingController _biografijaController = TextEditingController();
+
+  File? _image;
+  String? _base64Image;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.autor != null) {
+      _imeController.text = widget.autor!.ime ?? '';
+      _prezimeController.text = widget.autor!.prezime ?? '';
+      _biografijaController.text = widget.autor!.biografija ?? '';
+      _selectedDate = widget.autor!.datumRodjenja;
+      _base64Image = widget.autor!.slika;
+    }
+  }
+
+  void getImage() async {
+    var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        _image = File(result.files.single.path!);
+        _base64Image = base64Encode(_image!.readAsBytesSync());
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -50,6 +82,7 @@ class _AutorDodajScreenState extends State<AutorDodajScreen> {
           'prezime': _prezimeController.text,
           'datumRodjenja': _selectedDate?.toIso8601String(),
           'biografija': _biografijaController.text,
+          'slika': _base64Image,
         };
 
         if (_selectedDate == null) {
@@ -62,7 +95,11 @@ class _AutorDodajScreenState extends State<AutorDodajScreen> {
           return;
         }
 
-        await _autorProvider.insert(autor);
+        if (widget.autor != null) {
+          await _autorProvider.update(widget.autor!.autorId!, autor);
+        } else {
+          await _autorProvider.insert(autor);
+        }
 
         if (widget.onAutorAdded != null) {
           widget.onAutorAdded!();
@@ -92,7 +129,7 @@ class _AutorDodajScreenState extends State<AutorDodajScreen> {
   @override
   Widget build(BuildContext context) {
     return MasterScreen(
-      "Dodaj autora",
+      widget.autor != null ? "Uredi autora" : "Dodaj autora",
       SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -108,12 +145,71 @@ class _AutorDodajScreenState extends State<AutorDodajScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Dodaj novog autora',
-                      style: TextStyle(
+                    Text(
+                      widget.autor != null
+                          ? 'Uredi autora'
+                          : 'Dodaj novog autora',
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Color.fromARGB(255, 101, 85, 143),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Center(
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 200,
+                            height: 200,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: _image != null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.file(
+                                      _image!,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : _base64Image != null
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: imageFromString(_base64Image!),
+                                      )
+                                    : const Icon(
+                                        Icons.person,
+                                        size: 100,
+                                        color: Colors.grey,
+                                      ),
+                          ),
+                          const SizedBox(height: 10),
+                          ElevatedButton.icon(
+                            onPressed: getImage,
+                            icon: const Icon(Icons.upload),
+                            label: const Text('Dodaj sliku'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 101, 85, 143),
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                          if (_image != null || _base64Image != null)
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  _image = null;
+                                  _base64Image = null;
+                                });
+                              },
+                              child: const Text(
+                                'Ukloni sliku',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 24),

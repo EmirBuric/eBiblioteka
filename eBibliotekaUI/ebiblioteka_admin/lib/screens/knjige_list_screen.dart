@@ -224,6 +224,32 @@ class _KnjigeListScreenState extends State<KnjigeListScreen> {
               const SizedBox(height: 20),
               if (isLoading)
                 const CircularProgressIndicator()
+              else if (books.isEmpty)
+                Container(
+                  height: 300,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.search_off,
+                          size: 50,
+                          color: Color.fromARGB(255, 101, 85, 143),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          searchQuery.isEmpty
+                              ? 'Nema dostupnih knjiga'
+                              : 'Nema rezultata za pretragu "$searchQuery"',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 101, 85, 143),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               else
                 Column(
                   children: [

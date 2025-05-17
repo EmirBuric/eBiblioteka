@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens/autor_list_screen.dart';
 import '../screens/knjige_list_screen.dart';
 
 class MasterScreen extends StatefulWidget {
@@ -32,6 +33,14 @@ class _MasterScreenState extends State<MasterScreen> {
               },
               child:
                   const Text("Knjige", style: TextStyle(color: Colors.white)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => AutorListScreen()));
+              },
+              child:
+                  const Text("Autori", style: TextStyle(color: Colors.white)),
             ),
             TextButton(
               onPressed: () {
