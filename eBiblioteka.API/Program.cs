@@ -27,6 +27,8 @@ builder.Services.AddTransient<ICitaonicaServis, CitaonicaServis>();
 builder.Services.AddTransient<ITerminServis, TerminServis>();
 builder.Services.AddTransient<IClanarinaServis, ClanarinaSerivis>();
 
+builder.Services.AddHttpContextAccessor();
+
 
 builder.Services.AddControllers(x =>
 {

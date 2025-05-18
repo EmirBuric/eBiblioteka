@@ -11,22 +11,36 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+
 
 namespace eBiblioteka.Servisi.Services
 {
     public class KorisnikServis : BaseCRUDServis<KorisniciDTO, KorisnikSearchObject, Korisnik, KorisnikInsertRequest, KorisnikUpdateRequest>, IKorisniciServis
     {
         private readonly ILogger<KorisnikServis> _logger;
-        public KorisnikServis(Db180105Context context, IMapper mapper, ILogger<KorisnikServis> logger) : base(context, mapper)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public KorisnikServis(Db180105Context context,
+            IMapper mapper,
+            ILogger<KorisnikServis> logger,
+            IHttpContextAccessor httpContextAccessor) : base(context, mapper)
         {
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public override IQueryable<Korisnik> AddFilter(KorisnikSearchObject search, IQueryable<Korisnik> query)
         {
+            query=query.Include(x=>x.KorisnikUlogas);
+
+            query=query.Where(x=>x.IsBanned==false);
+
             if (!string.IsNullOrEmpty(search?.ImeGTE))
             {
                 query = query.Where(x => x.Ime.ToLower().StartsWith(search.ImeGTE));
@@ -50,6 +64,10 @@ namespace eBiblioteka.Servisi.Services
             if (search.IsBanned != null)
             {
                 query = query.Where(x => x.IsBanned == search.IsBanned);
+            }
+            if (search.UlogaId != null) 
+            {
+                query = query.Include(x => x.KorisnikUlogas).Where(x => x.KorisnikUlogas.Any(y => y.UlogaId == search.UlogaId));
             }
             return query;
         }
@@ -105,12 +123,12 @@ namespace eBiblioteka.Servisi.Services
                 .Include(x => x.KorisnikUlogas)
                 .ThenInclude(y => y.Uloga)
                 .FirstOrDefault(x => x.KorisnickoIme == korisnickoIme);
-            if (entity == null) 
+            if (entity == null)
             {
                 return null;
             }
 
-            var hash= GenerateHash(entity.LozinkaSalt,sifra);
+            var hash = GenerateHash(entity.LozinkaSalt, sifra);
 
             if (hash != entity.LozinkaHash)
                 return null;
@@ -138,6 +156,49 @@ namespace eBiblioteka.Servisi.Services
             HashAlgorithm algorithm = HashAlgorithm.Create("SHA1");
             byte[] inArray = algorithm.ComputeHash(dst);
             return Convert.ToBase64String(inArray);
+        }
+
+        public async Task Ban(int id)
+        {
+            var korisnik = await Context.Korisniks.FirstOrDefaultAsync(x => x.KorisnikId == id);
+
+            if (korisnik == null)
+            {
+                throw new UserException("Nemoguće pronaći korisnika sa ovim Id-om");
+            }
+
+            korisnik.IsBanned = true;
+            korisnik.DatumBanovanja=DateTime.Now;
+
+            Context.Update(korisnik);
+
+            await Context.SaveChangesAsync();
+        }
+
+        public async Task<string?> GetTrenutnaUloga()
+        {
+            var korisnik = _httpContextAccessor.HttpContext?.User;
+
+            if (korisnik?.Identity?.IsAuthenticated ?? false)
+            {
+                var uloga = korisnik.FindFirst(ClaimTypes.Role)?.Value;
+                return uloga;
+            }
+
+            return null;
+        }
+
+        public async Task<int?> GetTrenutniId()
+        {
+            var username = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
+
+            if (string.IsNullOrEmpty(username))
+                return null;
+
+            var korisnik = await Context.Korisniks
+                .FirstOrDefaultAsync(x => x.KorisnickoIme == username);
+
+            return korisnik?.KorisnikId;
         }
     }
 }

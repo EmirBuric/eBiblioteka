@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../screens/autor_list_screen.dart';
+import '../screens/korisnici_list_screen.dart';
 import '../screens/knjige_list_screen.dart';
+import '../screens/autor_list_screen.dart';
 
 class MasterScreen extends StatefulWidget {
   final String title;
@@ -51,7 +52,11 @@ class _MasterScreenState extends State<MasterScreen> {
             ),
             TextButton(
               onPressed: () {
-                // Navigate to Korisnici
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const KorisniciListScreen(),
+                  ),
+                );
               },
               child: const Text("Korisnici",
                   style: TextStyle(color: Colors.white)),

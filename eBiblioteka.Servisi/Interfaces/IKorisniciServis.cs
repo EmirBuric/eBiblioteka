@@ -12,5 +12,8 @@ namespace eBiblioteka.Servisi.Interfaces
     public interface IKorisniciServis:ICRUDServis<KorisniciDTO,KorisnikSearchObject,KorisnikInsertRequest,KorisnikUpdateRequest>
     {
         public KorisniciDTO Login(string korisnickoIme, string sifra);
+        public Task Ban(int id);
+        public Task<string?> GetTrenutnaUloga();
+        public Task<int?> GetTrenutniId();
     }
 }

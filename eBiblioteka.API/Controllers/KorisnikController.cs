@@ -17,5 +17,20 @@ namespace eBiblioteka.API.Controllers
         {
             return (_servis as IKorisniciServis).Login(korisnickoIme, sifra);
         }
+        [HttpPost("Delete/{id}")]
+        public async Task Ban(int id) 
+        {
+            await (_servis as IKorisniciServis).Ban(id);
+        }
+        [HttpGet("Uloga")]
+        public async Task<string?> GetTrenutnaUloga()
+        {
+            return await (_servis as IKorisniciServis).GetTrenutnaUloga();
+        }
+        [HttpGet("TrenutniId")]
+        public async Task<int?> GetTrenutniId()
+        {
+            return await (_servis as IKorisniciServis).GetTrenutniId();
+        }
     }
 }

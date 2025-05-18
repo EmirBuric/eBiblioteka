@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 //import 'package:form_field_validator/form_field_validator.dart';
 import '../providers/knjiga_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/korisnik_provider.dart';
 import 'knjige_list_screen.dart';
 
 // Stateful widget for the Login screen.
@@ -10,6 +11,65 @@ class Login extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formkey = GlobalKey<FormState>();
+
+  Future<void> _handleLogin(BuildContext context) async {
+    AuthProvider.username = _usernameController.text;
+    AuthProvider.password = _passwordController.text;
+
+    try {
+      final korisnikProvider = KorisnikProvider();
+
+      // Prvo provjeri ulogu
+      await korisnikProvider.getTrenutniKorisnikUloga();
+
+      if (!KorisnikProvider.isAdmin()) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Pristup zabranjen"),
+            content: const Text(
+                "Samo administratori imaju pristup ovoj aplikaciji."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      // Dohvati ID trenutnog korisnika
+      await korisnikProvider.getTrenutniKorisnikId();
+
+      // Ako je admin, nastavi sa autentikacijom
+      KnjigaProvider provider = KnjigaProvider();
+      await provider.get();
+
+      if (context.mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const KnjigeListScreen()),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Greška"),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -166,39 +226,7 @@ class Login extends StatelessWidget {
                             // Button height.
                             height: 50,
                             child: ElevatedButton(
-                                onPressed: () async {
-                                  //if (_formkey.currentState!.validate()) {
-                                  KnjigaProvider provider = KnjigaProvider();
-                                  print(
-                                      "Credentials: ${_usernameController.text} : ${_passwordController.text}");
-                                  AuthProvider.username =
-                                      _usernameController.text;
-                                  AuthProvider.password =
-                                      _passwordController.text;
-                                  try {
-                                    var data = await provider.get();
-                                    print("Authenticated!");
-
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                KnjigeListScreen()));
-                                  } on Exception catch (e) {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) => AlertDialog(
-                                              title: Text("Error"),
-                                              actions: [
-                                                TextButton(
-                                                    onPressed: () =>
-                                                        Navigator.pop(context),
-                                                    child: Text("Ok"))
-                                              ],
-                                              content: Text(e.toString()),
-                                            ));
-                                  }
-                                  //}
-                                },
+                                onPressed: () => _handleLogin(context),
                                 style: ElevatedButton.styleFrom(
                                   // Button background color.
                                   backgroundColor:
