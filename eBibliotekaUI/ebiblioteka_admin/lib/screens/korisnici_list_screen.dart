@@ -344,8 +344,8 @@ class _KorisniciListScreenState extends State<KorisniciListScreen> {
                                                               MainAxisSize.min,
                                                           children: [
                                                             IconButton(
-                                                              icon: const Icon(
-                                                                  Icons.edit),
+                                                              icon: const Icon(Icons
+                                                                  .attach_money),
                                                               color:
                                                                   Colors.blue,
                                                               onPressed: korisnik
@@ -354,7 +354,11 @@ class _KorisniciListScreenState extends State<KorisniciListScreen> {
                                                                           .trenutniKorisnikId
                                                                   ? null
                                                                   : () {
-                                                                      // TODO: Implement edit
+                                                                      Navigator.pushNamed(
+                                                                          context,
+                                                                          '/uplata-clanarine',
+                                                                          arguments:
+                                                                              korisnik);
                                                                     },
                                                             ),
                                                             IconButton(

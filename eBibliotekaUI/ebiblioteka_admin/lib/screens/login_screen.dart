@@ -19,8 +19,8 @@ class Login extends StatelessWidget {
     try {
       final korisnikProvider = KorisnikProvider();
 
-      // Prvo provjeri ulogu
       await korisnikProvider.getTrenutniKorisnikUloga();
+      await korisnikProvider.getTrenutniKorisnikId();
 
       if (!KorisnikProvider.isAdmin()) {
         showDialog(
@@ -40,10 +40,6 @@ class Login extends StatelessWidget {
         return;
       }
 
-      // Dohvati ID trenutnog korisnika
-      await korisnikProvider.getTrenutniKorisnikId();
-
-      // Ako je admin, nastavi sa autentikacijom
       KnjigaProvider provider = KnjigaProvider();
       await provider.get();
 

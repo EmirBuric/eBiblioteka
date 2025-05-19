@@ -1,4 +1,5 @@
 import 'package:ebiblioteka_admin/screens/login_screen.dart';
+import 'package:ebiblioteka_admin/screens/uplata_clanarine_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -13,6 +14,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Login(),
+      routes: {
+        '/uplata-clanarine': (context) => const UplataClanarineScreen(),
+      },
     );
   }
 }

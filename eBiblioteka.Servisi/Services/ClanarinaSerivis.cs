@@ -1,4 +1,5 @@
 ﻿using eBiblioteka.Modeli.DTOs;
+using eBiblioteka.Modeli.Exceptions;
 using eBiblioteka.Modeli.SearchObjects;
 using eBiblioteka.Modeli.UpsertRequest;
 using eBiblioteka.Servisi.Database;
@@ -15,8 +16,11 @@ namespace eBiblioteka.Servisi.Services
 {
     public class ClanarinaSerivis : BaseCRUDServis<ClanarinaDTO, ClanarinaSearchObject, Clanarina, ClanarinaUpsertRequest, ClanarinaUpsertRequest>, IClanarinaServis
     {
-        public ClanarinaSerivis(Db180105Context context, IMapper mapper) : base(context, mapper)
+        private readonly ITipClanarineServis _tipClanarineServis;
+
+        public ClanarinaSerivis(Db180105Context context, IMapper mapper, ITipClanarineServis tipClanarineServis) : base(context, mapper)
         {
+            _tipClanarineServis = tipClanarineServis;
         }
 
         public override IQueryable<Clanarina> AddFilter(ClanarinaSearchObject search, IQueryable<Clanarina> query)
@@ -70,46 +74,28 @@ namespace eBiblioteka.Servisi.Services
             return entity;
         }
 
-        public override Task BeforeInsert(ClanarinaUpsertRequest insert, Clanarina entity, CancellationToken cancellationToken = default)
+        public override async Task BeforeInsert(ClanarinaUpsertRequest insert, Clanarina entity, CancellationToken cancellationToken = default)
         {
-            switch (insert.TipClanarineId)
+            var tip= await _tipClanarineServis.GetById(insert.TipClanarineId);
+            if (tip == null) 
             {
-                case 1:
-                    entity.DatumIsteka = insert.DatumUplate.AddMonths(1);
-                    break;
-                case 2:
-                    entity.DatumIsteka = insert.DatumUplate.AddMonths(3);
-                    break;
-                case 3:
-                    entity.DatumIsteka = insert.DatumUplate.AddMonths(6);
-                    break;
-                case 4:
-                    entity.DatumIsteka = insert.DatumUplate.AddMonths(12);
-                    break;
+                throw new UserException("Nepostojeci Tip Clanarine");
             }
+            entity.DatumIsteka = insert.DatumUplate.AddMonths(tip.VrijemeTrajanja);
 
-            return base.BeforeInsert(insert, entity, cancellationToken);
+            await base.BeforeInsert(insert, entity, cancellationToken);
         }
 
-        public override Task BeforeUpdate(ClanarinaUpsertRequest update, Clanarina entity, CancellationToken cancellationToken = default)
+        public override async Task BeforeUpdate(ClanarinaUpsertRequest update, Clanarina entity, CancellationToken cancellationToken = default)
         {
-            switch (update.TipClanarineId)
+            var tip = await _tipClanarineServis.GetById(update.TipClanarineId);
+            if (tip == null)
             {
-                case 1:
-                    entity.DatumIsteka = update.DatumUplate.AddMonths(1);
-                    break;
-                case 2:
-                    entity.DatumIsteka = update.DatumUplate.AddMonths(3);
-                    break;
-                case 3:
-                    entity.DatumIsteka = update.DatumUplate.AddMonths(6);
-                    break;
-                case 4:
-                    entity.DatumIsteka = update.DatumUplate.AddMonths(12);
-                    break;
+                throw new UserException("Nepostojeci Tip Clanarine");
             }
+            entity.DatumIsteka = update.DatumUplate.AddMonths(tip.VrijemeTrajanja);
 
-            return base.BeforeUpdate(update, entity, cancellationToken);
+            await base.BeforeUpdate(update, entity, cancellationToken);
         }
     }
 }

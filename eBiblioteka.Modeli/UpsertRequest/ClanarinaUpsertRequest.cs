@@ -15,8 +15,8 @@ namespace eBiblioteka.Modeli.UpsertRequest
         [Required(ErrorMessage = "Ovo polje ne može biti prazno")]
         public DateTime DatumUplate { get; set; }
 
-        public int? KorisnikId { get; set; }
+        public int KorisnikId { get; set; }
 
-        public int? TipClanarineId { get; set; }
+        public int TipClanarineId { get; set; }
     }
 }
