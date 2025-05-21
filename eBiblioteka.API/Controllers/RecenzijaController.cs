@@ -2,6 +2,7 @@
 using eBiblioteka.Modeli.SearchObjects;
 using eBiblioteka.Modeli.UpsertRequest;
 using eBiblioteka.Servisi.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace eBiblioteka.API.Controllers
 {
@@ -9,6 +10,18 @@ namespace eBiblioteka.API.Controllers
     {
         public RecenzijaController(IRecenzijaServis servis) : base(servis)
         {
+        }
+
+        [HttpPost("Odbij/{id}")]
+        public async Task Odbij(int id)
+        {
+            await (_servis as IRecenzijaServis).Odbij(id);
+        }
+
+        [HttpPost("Prihvati/{id}")]
+        public async Task Prihvati(int id)
+        {
+            await (_servis as IRecenzijaServis).Prihvati(id);
         }
     }
 }

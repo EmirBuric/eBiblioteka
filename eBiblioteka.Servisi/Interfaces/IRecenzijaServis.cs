@@ -11,5 +11,7 @@ namespace eBiblioteka.Servisi.Interfaces
 {
     public interface IRecenzijaServis:ICRUDServis<RecenzijaDTO,RecenzijaSearchObject,RecenzijaUpsertRequest,RecenzijaUpsertRequest>
     {
+        public Task Odbij(int id);
+        public Task Prihvati(int id);
     }
 }

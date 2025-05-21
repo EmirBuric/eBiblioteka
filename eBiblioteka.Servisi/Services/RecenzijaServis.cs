@@ -1,4 +1,5 @@
 ﻿using eBiblioteka.Modeli.DTOs;
+using eBiblioteka.Modeli.Exceptions;
 using eBiblioteka.Modeli.SearchObjects;
 using eBiblioteka.Modeli.UpsertRequest;
 using eBiblioteka.Servisi.Database;
@@ -63,8 +64,6 @@ namespace eBiblioteka.Servisi.Services
 
         public override Task BeforeInsert(RecenzijaUpsertRequest insert, Recenzija entity, CancellationToken cancellationToken = default)
         {
-            entity.Odobrena=false;
-
             entity.DatumRecenzije=DateTime.Now;
 
             return base.BeforeInsert(insert, entity, cancellationToken);
@@ -72,7 +71,7 @@ namespace eBiblioteka.Servisi.Services
 
         public override Task BeforeUpdate(RecenzijaUpsertRequest update, Recenzija entity, CancellationToken cancellationToken = default)
         {
-            entity.Odobrena=false;
+            entity.DatumRecenzije = DateTime.Now;
             return base.BeforeUpdate(update, entity, cancellationToken);
         }
 
@@ -86,5 +85,28 @@ namespace eBiblioteka.Servisi.Services
             return entity;
         }
 
+        public async Task Odbij(int id)
+        {
+            var recenzija= await Context.Recenzijas.FirstOrDefaultAsync(x=>x.RecenzijaId == id);
+            if(recenzija==null)
+            {
+                throw new UserException("Nema recenzije sa ovim ID-em");
+            }
+            recenzija.Odobrena=false;   
+            Context.Update(recenzija);
+            await Context.SaveChangesAsync();
+        }
+
+        public async Task  Prihvati(int id)
+        {
+            var recenzija = await Context.Recenzijas.FirstOrDefaultAsync(x => x.RecenzijaId == id);
+            if (recenzija == null)
+            {
+                throw new UserException("Nema recenzije sa ovim ID-em");
+            }
+            recenzija.Odobrena = true;
+            Context.Update(recenzija);
+            await Context.SaveChangesAsync();
+        }
     }
 }

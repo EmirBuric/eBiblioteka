@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../screens/korisnici_list_screen.dart';
 import '../screens/knjige_list_screen.dart';
 import '../screens/autor_list_screen.dart';
+import '../screens/recenzija_list_screen.dart';
 
 class MasterScreen extends StatefulWidget {
   final String title;
@@ -45,7 +46,11 @@ class _MasterScreenState extends State<MasterScreen> {
             ),
             TextButton(
               onPressed: () {
-                // Navigate to Recenzije
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const RecenzijaListScreen(),
+                  ),
+                );
               },
               child: const Text("Recenzije",
                   style: TextStyle(color: Colors.white)),

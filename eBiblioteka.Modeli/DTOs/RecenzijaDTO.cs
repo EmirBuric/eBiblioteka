@@ -16,7 +16,7 @@ namespace eBiblioteka.Modeli.DTOs
 
         public int KorisnikId { get; set; }
 
-        public bool Odobrena { get; set; }
+        public bool? Odobrena { get; set; }
 
         public DateTime DatumRecenzije { get; set; }
 
