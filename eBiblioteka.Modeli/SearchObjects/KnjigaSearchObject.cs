@@ -18,5 +18,7 @@ namespace eBiblioteka.Modeli.SearchObjects
 
         public string? Autor { get; set; }
 
+        public bool? KnjigaDana { get; set; }
+
     }
 }

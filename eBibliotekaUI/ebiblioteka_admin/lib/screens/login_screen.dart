@@ -1,3 +1,4 @@
+import 'package:ebiblioteka_admin/screens/pocetna_screen.dart';
 import 'package:flutter/material.dart';
 //import 'package:form_field_validator/form_field_validator.dart';
 import '../providers/knjiga_provider.dart';
@@ -45,7 +46,7 @@ class Login extends StatelessWidget {
 
       if (context.mounted) {
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const KnjigeListScreen()),
+          MaterialPageRoute(builder: (context) => const PocetnaScreen()),
         );
       }
     } catch (e) {

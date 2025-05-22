@@ -60,6 +60,10 @@ namespace eBiblioteka.Servisi.Services
                         y => (y.Autor.Ime + " " + y.Autor.Prezime).ToLower().StartsWith(search.Autor)
                         )).Count() > 0);
             }
+            if(search.KnjigaDana!=null)
+            {
+                query=query.Where(x=>x.KnjigaDana==search.KnjigaDana);
+            }
 
             return query;
         }
@@ -146,6 +150,30 @@ namespace eBiblioteka.Servisi.Services
             knjiga.IsDeleted = true;
             knjiga.VrijemeBrisanja=DateTime.Now;
             Context.Update(knjiga);
+
+            await Context.SaveChangesAsync();
+        }
+
+        public async Task SelectKnjigaDana(int id)
+        {
+            var staraKnjigaDana = await Context.Knjigas.FirstOrDefaultAsync(x=>x.KnjigaDana==true);
+            
+            if (staraKnjigaDana != null)
+            {
+                staraKnjigaDana.KnjigaDana = false;
+            }
+
+            var novaKnjigaDana= await Context.Knjigas.FirstOrDefaultAsync(x=>x.KnjigaId==id);
+            if(novaKnjigaDana == null)
+            {
+                throw new UserException("Knjiga sa ovim ID-em ne postoji");
+            }
+            if (novaKnjigaDana.Dostupna == false)
+            {
+                throw new UserException("Knjiga je nedostupna i ne mozete ju postaviti za knjigu dana");
+            }
+
+            novaKnjigaDana.KnjigaDana=true;
 
             await Context.SaveChangesAsync();
         }

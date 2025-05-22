@@ -17,5 +17,11 @@ namespace eBiblioteka.API.Controllers
         {
             await (_servis as IKnjigaServis).Delete(id);
         }
+
+        [HttpPost("KnjigaDana/{id}")]
+        public async Task KnjigaDana(int id)
+        {
+            await (_servis as IKnjigaServis).SelectKnjigaDana(id);
+        }
     }
 }

@@ -3,6 +3,7 @@ import '../screens/korisnici_list_screen.dart';
 import '../screens/knjige_list_screen.dart';
 import '../screens/autor_list_screen.dart';
 import '../screens/recenzija_list_screen.dart';
+import '../screens/pocetna_screen.dart';
 
 class MasterScreen extends StatefulWidget {
   final String title;
@@ -24,9 +25,20 @@ class _MasterScreenState extends State<MasterScreen> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Text("eBiblioteka",
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => PocetnaScreen()),
+                );
+              },
+              child: const Text(
+                "eBiblioteka",
                 style: TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.white)),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
             const SizedBox(width: 30),
             TextButton(
               onPressed: () {
