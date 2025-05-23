@@ -23,5 +23,11 @@ namespace eBiblioteka.API.Controllers
         {
             await (_servis as IKnjigaServis).SelectKnjigaDana(id);
         }
+
+        [HttpPost("Preporuka")]
+        public async Task SelectPreporucenaKnjiga(List<int> ids)
+        {
+            await (_servis as IKnjigaServis).SelectPreporucenaKnjiga(ids);
+        }
     }
 }

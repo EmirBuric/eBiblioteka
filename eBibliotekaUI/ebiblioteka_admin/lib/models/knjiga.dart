@@ -15,6 +15,7 @@ class Knjiga {
   int? kolicina;
   bool? dostupna;
   bool? knjigaDana;
+  bool? preporuceno;
   List<int>? autoriIds;
 
   Knjiga({

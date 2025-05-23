@@ -27,6 +27,8 @@ public partial class Knjiga
 
     public bool? KnjigaDana { get; set; }
 
+    public bool? Preporuceno { get; set; }
+
     public virtual ICollection<KnjigaAutor> KnjigaAutors { get; set; } = new List<KnjigaAutor>();
 
     public virtual ICollection<KorisnikIzabranaKnjiga> KorisnikIzabranaKnjigas { get; set; } = new List<KorisnikIzabranaKnjiga>();

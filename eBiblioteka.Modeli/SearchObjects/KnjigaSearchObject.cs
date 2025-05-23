@@ -20,5 +20,7 @@ namespace eBiblioteka.Modeli.SearchObjects
 
         public bool? KnjigaDana { get; set; }
 
+        public bool? Preporuceno { get; set; }
+
     }
 }

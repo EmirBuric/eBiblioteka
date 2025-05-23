@@ -28,6 +28,8 @@ namespace eBiblioteka.Modeli.DTOs
 
         public bool? KnjigaDana { get; set; }
 
+        public bool? Preporuceno { get; set; }
+
         public virtual ICollection<KnjigaAutorDTO> KnjigaAutors { get; set; } = new List<KnjigaAutorDTO>();
     }
 }

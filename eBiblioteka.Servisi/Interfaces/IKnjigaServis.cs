@@ -12,6 +12,9 @@ namespace eBiblioteka.Servisi.Interfaces
     public interface IKnjigaServis:ICRUDServis<KnjigaDTO,KnjigaSearchObject,KnjigaInsertRequest,KnjigaUpdateRequest>
     {
         public Task Delete(int id);
+
         public Task SelectKnjigaDana(int id);
+
+        public Task SelectPreporucenaKnjiga(List<int> id);
     }
 }

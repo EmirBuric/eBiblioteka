@@ -23,7 +23,8 @@ Knjiga _$KnjigaFromJson(Map<String, dynamic> json) => Knjiga(
           : DateTime.parse(json['vrijemeBrisanja'] as String)
       ..kolicina = (json['kolicina'] as num?)?.toInt()
       ..dostupna = json['dostupna'] as bool?
-      ..knjigaDana = json['knjigaDana'] as bool?;
+      ..knjigaDana = json['knjigaDana'] as bool?
+      ..preporuceno = json['preporuceno'] as bool?;
 
 Map<String, dynamic> _$KnjigaToJson(Knjiga instance) => <String, dynamic>{
       'knjigaId': instance.knjigaId,
@@ -37,5 +38,6 @@ Map<String, dynamic> _$KnjigaToJson(Knjiga instance) => <String, dynamic>{
       'kolicina': instance.kolicina,
       'dostupna': instance.dostupna,
       'knjigaDana': instance.knjigaDana,
+      'preporuceno': instance.preporuceno,
       'autoriIds': instance.autoriIds,
     };

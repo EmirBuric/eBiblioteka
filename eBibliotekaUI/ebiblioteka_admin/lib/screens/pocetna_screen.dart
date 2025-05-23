@@ -29,7 +29,6 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
   Future<void> _loadData() async {
     setState(() => isLoading = true);
     try {
-      // Load zanrovi first
       var zanroviData = await _zanrProvider.get();
       zanrovi = {
         for (var zanr in zanroviData.result) zanr.zanrId ?? 0: zanr.naziv ?? ''
@@ -80,8 +79,9 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) {
-          // Trigger initial fetch if no books are loaded yet
-          if (modalBooks.isEmpty) {
+          if ((controller.text.trim().isEmpty ||
+                  controller.text.trim().length >= 3) &&
+              modalBooks.isEmpty) {
             fetchModalBooks(page: 1, dialogSetState: setModalState);
           }
           return AlertDialog(
@@ -93,78 +93,241 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                   controller: controller,
                   decoration: const InputDecoration(hintText: "Pretraži..."),
                   onChanged: (query) {
-                    fetchModalBooks(page: 1, dialogSetState: setModalState);
+                    if (query.isEmpty) {
+                      fetchModalBooks(page: 1, dialogSetState: setModalState);
+                    } else if (query.trim().length < 3) {
+                      setModalState(() {
+                        modalBooks = [];
+                        modalTotalItems = 0;
+                        modalCurrentPage = 1;
+                      });
+                    } else {
+                      fetchModalBooks(page: 1, dialogSetState: setModalState);
+                    }
                   },
                 ),
                 const SizedBox(height: 16),
                 Container(
                   width: double.maxFinite,
                   height: 300,
-                  child: ListView.builder(
-                    itemCount: modalBooks.length,
-                    itemBuilder: (context, index) {
-                      var knjiga = modalBooks[index];
-                      return Card(
-                        child: ListTile(
-                          leading: knjiga.slika != null
-                              ? SizedBox(
-                                  width: 40,
-                                  height: 40,
-                                  child: imageFromString(knjiga.slika!),
-                                )
-                              : const Icon(Icons.image),
-                          title: Text(knjiga.naziv ?? 'Nepoznat naziv'),
-                          trailing: ElevatedButton(
-                            onPressed: () async {
-                              await _knjigaProvider
-                                  .setKnjigaDana(knjiga.knjigaId!);
-                              var data = await _knjigaProvider
-                                  .get(filter: {'KnjigaDana': true});
-                              setState(() {
-                                if (data.result.isNotEmpty) {
-                                  knjigaDana = data.result.first;
-                                }
-                              });
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text("Odaberi"),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                  child: modalBooks.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: modalBooks.length,
+                          itemBuilder: (context, index) {
+                            var knjiga = modalBooks[index];
+                            return Card(
+                              child: ListTile(
+                                leading: knjiga.slika != null
+                                    ? SizedBox(
+                                        width: 40,
+                                        height: 40,
+                                        child: imageFromString(knjiga.slika!),
+                                      )
+                                    : const Icon(Icons.image),
+                                title: Text(knjiga.naziv ?? 'Nepoznat naziv'),
+                                trailing: ElevatedButton(
+                                  onPressed: () async {
+                                    await _knjigaProvider
+                                        .setKnjigaDana(knjiga.knjigaId!);
+                                    var data = await _knjigaProvider
+                                        .get(filter: {'KnjigaDana': true});
+                                    setState(() {
+                                      if (data.result.isNotEmpty) {
+                                        knjigaDana = data.result.first;
+                                      }
+                                    });
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text("Odaberi"),
+                                ),
+                              ),
+                            );
+                          },
+                        )
+                      : const Center(child: Text("Nema rezultata")),
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.chevron_left),
-                      onPressed: modalCurrentPage > 1
-                          ? () {
-                              fetchModalBooks(
-                                  page: modalCurrentPage - 1,
-                                  dialogSetState: setModalState);
-                            }
-                          : null,
-                    ),
-                    const SizedBox(width: 20),
-                    Text(
-                        'Stranica $modalCurrentPage od ${(modalTotalItems / modalPageSize).ceil()}'),
-                    const SizedBox(width: 20),
-                    IconButton(
-                      icon: const Icon(Icons.chevron_right),
-                      onPressed: modalCurrentPage <
-                              (modalTotalItems / modalPageSize).ceil()
-                          ? () {
-                              fetchModalBooks(
-                                  page: modalCurrentPage + 1,
-                                  dialogSetState: setModalState);
-                            }
-                          : null,
-                    ),
-                  ],
+                if (modalTotalItems > 0)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.chevron_left),
+                        onPressed: modalCurrentPage > 1
+                            ? () {
+                                fetchModalBooks(
+                                    page: modalCurrentPage - 1,
+                                    dialogSetState: setModalState);
+                              }
+                            : null,
+                      ),
+                      const SizedBox(width: 20),
+                      Text(
+                          'Stranica $modalCurrentPage od ${(modalTotalItems / modalPageSize).ceil()}'),
+                      const SizedBox(width: 20),
+                      IconButton(
+                        icon: const Icon(Icons.chevron_right),
+                        onPressed: modalCurrentPage <
+                                (modalTotalItems / modalPageSize).ceil()
+                            ? () {
+                                fetchModalBooks(
+                                    page: modalCurrentPage + 1,
+                                    dialogSetState: setModalState);
+                              }
+                            : null,
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _openPreporuceneModal() async {
+    List<Knjiga> modalBooks = [];
+    int modalCurrentPage = 1;
+    int modalTotalItems = 0;
+    const int modalPageSize = 8;
+    final controller = TextEditingController();
+    List<int> selectedIds = [];
+
+    Future<void> fetchModalBooks(
+        {int? page,
+        required void Function(void Function()) dialogSetState}) async {
+      int p = page ?? modalCurrentPage;
+      var response = await _knjigaProvider.get(filter: {
+        if (controller.text.trim().isNotEmpty) 'NazivGTE': controller.text,
+        'Page': p,
+        'PageSize': modalPageSize,
+        'KnjigaDana': false,
+      });
+      dialogSetState(() {
+        modalBooks = response.result;
+        modalTotalItems = response.count;
+        modalCurrentPage = p;
+        selectedIds = modalBooks
+            .where((knjiga) =>
+                knjiga.preporuceno == true && knjiga.knjigaId != null)
+            .map((knjiga) => knjiga.knjigaId!)
+            .toList();
+      });
+    }
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) {
+          if ((controller.text.trim().isEmpty ||
+                  controller.text.trim().length >= 3) &&
+              modalBooks.isEmpty) {
+            fetchModalBooks(page: 1, dialogSetState: setModalState);
+          }
+          return AlertDialog(
+            title: const Text("Pretraži preporučene knjige"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: controller,
+                  decoration: const InputDecoration(hintText: "Pretraži..."),
+                  onChanged: (query) {
+                    if (query.isEmpty) {
+                      fetchModalBooks(page: 1, dialogSetState: setModalState);
+                    } else if (query.trim().length < 3) {
+                      setModalState(() {
+                        modalBooks = [];
+                        modalTotalItems = 0;
+                        modalCurrentPage = 1;
+                      });
+                    } else {
+                      fetchModalBooks(page: 1, dialogSetState: setModalState);
+                    }
+                  },
                 ),
+                const SizedBox(height: 16),
+                Container(
+                  width: double.maxFinite,
+                  height: 300,
+                  child: modalBooks.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: modalBooks.length,
+                          itemBuilder: (context, index) {
+                            var knjiga = modalBooks[index];
+                            bool isSelected =
+                                selectedIds.contains(knjiga.knjigaId);
+                            return CheckboxListTile(
+                              value: isSelected,
+                              title: Text(knjiga.naziv ?? 'Nepoznat naziv'),
+                              secondary: knjiga.slika != null
+                                  ? SizedBox(
+                                      width: 40,
+                                      height: 40,
+                                      child: imageFromString(knjiga.slika!),
+                                    )
+                                  : const Icon(Icons.image),
+                              onChanged: (checked) {
+                                setModalState(() {
+                                  if (checked == true) {
+                                    selectedIds.add(knjiga.knjigaId!);
+                                  } else {
+                                    selectedIds.remove(knjiga.knjigaId);
+                                  }
+                                });
+                              },
+                            );
+                          },
+                        )
+                      : const Center(child: Text("Nema rezultata")),
+                ),
+                const SizedBox(height: 8),
+                if (modalTotalItems > 0)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.chevron_left),
+                        onPressed: modalCurrentPage > 1
+                            ? () {
+                                fetchModalBooks(
+                                    page: modalCurrentPage - 1,
+                                    dialogSetState: setModalState);
+                              }
+                            : null,
+                      ),
+                      const SizedBox(width: 20),
+                      Text(
+                          'Stranica $modalCurrentPage od ${(modalTotalItems / modalPageSize).ceil()}'),
+                      const SizedBox(width: 20),
+                      IconButton(
+                        icon: const Icon(Icons.chevron_right),
+                        onPressed: modalCurrentPage <
+                                (modalTotalItems / modalPageSize).ceil()
+                            ? () {
+                                fetchModalBooks(
+                                    page: modalCurrentPage + 1,
+                                    dialogSetState: setModalState);
+                              }
+                            : null,
+                      ),
+                    ],
+                  ),
+                if (modalBooks.isNotEmpty) const SizedBox(height: 16),
+                if (modalBooks.isNotEmpty)
+                  ElevatedButton(
+                    onPressed: () async {
+                      await _knjigaProvider.setPreporucenaKnjiga(selectedIds);
+                      var data = await _knjigaProvider
+                          .get(filter: {'Preporuceno': true});
+                      setState(() {
+                        preporuceneKnjige = data.result;
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("Potvrdi"),
+                  ),
               ],
             ),
           );
@@ -297,7 +460,7 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                             const SizedBox(height: 16),
                             Center(
                               child: ElevatedButton(
-                                onPressed: _openSearchModal, // updated callback
+                                onPressed: _openSearchModal,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
                                   foregroundColor: Colors.blue[700],
@@ -314,15 +477,51 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                         ),
             ),
             const SizedBox(height: 32),
-            if (!isLoading && preporuceneKnjige.isNotEmpty)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: preporuceneKnjige
-                    .take(3)
-                    .map(
-                        (knjiga) => _BookCard(knjiga: knjiga, zanrovi: zanrovi))
-                    .toList(),
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Preporučene knjige',
+                  style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87),
+                ),
+                const SizedBox(height: 16),
+                if (!isLoading && preporuceneKnjige.isNotEmpty)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: preporuceneKnjige
+                        .take(3)
+                        .map((knjiga) =>
+                            _BookCard(knjiga: knjiga, zanrovi: zanrovi))
+                        .toList(),
+                  )
+                else
+                  const Center(
+                    child: Text(
+                      'Nemate preporučenih knjiga',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: _openPreporuceneModal,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.blue[700],
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                    ),
+                    child: const Text(
+                      'Promijeni preporučene knjige',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace eBiblioteka.Servisi.Services
 {
@@ -63,6 +64,11 @@ namespace eBiblioteka.Servisi.Services
             if(search.KnjigaDana!=null)
             {
                 query=query.Where(x=>x.KnjigaDana==search.KnjigaDana);
+            }
+
+            if (search.Preporuceno != null)
+            {
+                query = query.Where(x => x.Preporuceno == search.Preporuceno);
             }
 
             return query;
@@ -176,6 +182,33 @@ namespace eBiblioteka.Servisi.Services
             novaKnjigaDana.KnjigaDana=true;
 
             await Context.SaveChangesAsync();
+        }
+
+        public async Task SelectPreporucenaKnjiga(List<int> ids)
+        {
+            if(ids.Count()>3)
+            {
+                throw new UserException("Preporuke imaju limit od tri knjige");
+            }
+            if(!ids.IsNullOrEmpty())
+            {
+                var preporuke = await Context.Knjigas.Where(x => x.Preporuceno==true).ToListAsync();
+
+                var novePreporukeIds = ids.Except(preporuke.Select(x => x.KnjigaId)).ToList();
+                var starePreporuke = preporuke.Where(x => !ids.Contains(x.KnjigaId)).ToList();
+
+                var novePreporuke = await Context.Knjigas
+                    .Where(k => novePreporukeIds.Contains(k.KnjigaId))
+                    .ToListAsync();
+
+                foreach (var knjiga in novePreporuke)
+                    knjiga.Preporuceno = true;
+
+                foreach (var knjiga in starePreporuke)
+                    knjiga.Preporuceno = false;
+
+                await Context.SaveChangesAsync();
+            }
         }
     }
 }
