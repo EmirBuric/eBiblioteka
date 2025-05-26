@@ -19,6 +19,7 @@ namespace eBiblioteka.Modeli.UpsertRequest
         public DateTime? DatumRodjenja { get; set; }
 
         public byte[]? Slika { get; set; }
+
         public string? Biografija { get; set; }
     }
 }

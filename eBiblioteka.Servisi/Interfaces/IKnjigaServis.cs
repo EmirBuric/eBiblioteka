@@ -15,6 +15,6 @@ namespace eBiblioteka.Servisi.Interfaces
 
         public Task SelectKnjigaDana(int id);
 
-        public Task SelectPreporucenaKnjiga(List<int> id);
+        public Task SelectPreporucenaKnjiga(List<int> ids);
     }
 }

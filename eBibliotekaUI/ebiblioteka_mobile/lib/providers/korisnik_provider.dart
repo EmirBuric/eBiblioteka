@@ -1,7 +1,7 @@
-import 'package:ebiblioteka_admin/providers/auth_provider.dart';
+import 'package:ebiblioteka_mobile/providers/auth_provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:ebiblioteka_admin/models/korisnik.dart';
-import 'package:ebiblioteka_admin/providers/base_provider.dart';
+import 'package:ebiblioteka_mobile/models/korisnik.dart';
+import 'package:ebiblioteka_mobile/providers/base_provider.dart';
 
 class KorisnikProvider extends BaseProvider<Korisnik> {
   KorisnikProvider() : super("Korisnik");
@@ -49,9 +49,5 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');
     }
-  }
-
-  static bool isAdmin() {
-    return AuthProvider.uloga?.trim() == "Admin";
   }
 }

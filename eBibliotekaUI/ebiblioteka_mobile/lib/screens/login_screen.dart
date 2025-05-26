@@ -1,22 +1,55 @@
+import 'package:ebiblioteka_mobile/providers/auth_provider.dart';
+import 'package:ebiblioteka_mobile/providers/knjiga_provider.dart';
+import 'package:ebiblioteka_mobile/providers/korisnik_provider.dart';
+import 'package:ebiblioteka_mobile/screens/pocetna_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:form_field_validator/form_field_validator.dart';
+import 'package:ebiblioteka_mobile/layouts/master_screen.dart';
+//import 'package:form_field_validator/form_field_validator.dart';
 
-// Stateful widget for the Login screen.
-class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
-
-  @override
-  State<Login> createState() => _LoginState();
-}
-
-// State class for the Login widget.
-class _LoginState extends State<Login> {
-  // Map to store user data (if needed in the future).
-  Map userData = {};
-
-  // Key to manage the form state.
+class Login extends StatelessWidget {
+  Login({super.key});
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final _formkey = GlobalKey<FormState>();
+
+  Future<void> _handleLogin(BuildContext context) async {
+    AuthProvider.username = _usernameController.text;
+    AuthProvider.password = _passwordController.text;
+
+    try {
+      final korisnikProvider = KorisnikProvider();
+
+      //await korisnikProvider.getTrenutniKorisnikUloga();
+
+      await korisnikProvider.getTrenutniKorisnikId();
+
+      //KnjigaProvider provider = KnjigaProvider();
+      //await provider.get();
+      if (context.mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const MasterScreen()),
+          (Route<dynamic> route) => false,
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Greška"),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,11 +106,11 @@ class _LoginState extends State<Login> {
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        // Email input field.
                         Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: TextFormField(
-                                validator: MultiValidator([
+                                controller: _usernameController,
+                                /*validator: MultiValidator([
                                   RequiredValidator(
 
                                       // Validation for required field.
@@ -86,34 +119,32 @@ class _LoginState extends State<Login> {
 
                                       // Validation for email format.
                                       errorText: 'Pogrešan format email-a'),
-                                ]),
+                                ]),*/
                                 decoration: InputDecoration(
+                                  // Placeholder text.
+                                  hintText: 'Korisničko ime',
 
-                                    // Placeholder text.
-                                    hintText: 'Email',
+                                  // Label for the field.
+                                  labelText: 'Korisničko ime',
+                                  prefixIcon: Icon(Icons.person),
 
-                                    // Label for the field.
-                                    labelText: 'Email',
-                                    prefixIcon: Icon(
-                                      // Email icon.
-                                      Icons.email,
-                                    ),
-
-                                    // Error message styling.
-                                    errorStyle: TextStyle(fontSize: 18.0),
+                                  // Error message styling.
+                                  /*errorStyle: TextStyle(fontSize: 18.0),
                                     border: OutlineInputBorder(
                                         borderSide:
                                             BorderSide(color: Colors.red),
                                         borderRadius: BorderRadius.all(
 
                                             // Rounded border.
-                                            Radius.circular(9.0)))))),
+                                            Radius.circular(9.0)))*/
+                                ))),
 
                         // Password input field.
                         Padding(
                           padding: const EdgeInsets.all(12.0),
                           child: TextFormField(
-                            validator: MultiValidator([
+                            controller: _passwordController,
+                            /*validator: MultiValidator([
                               RequiredValidator(
 
                                   // Validation for required field.
@@ -128,7 +159,7 @@ class _LoginState extends State<Login> {
                                   // Special character validation.
                                   errorText:
                                       'Lozinka mora imati barem jedan poseban karakter')
-                            ]),
+                            ]),*/
                             decoration: InputDecoration(
                               // Placeholder text.
                               hintText: 'Lozinka',
@@ -142,13 +173,13 @@ class _LoginState extends State<Login> {
                               ),
 
                               // Error message styling.
-                              errorStyle: TextStyle(fontSize: 18.0),
+                              /*errorStyle: TextStyle(fontSize: 18.0),
                               border: OutlineInputBorder(
                                   borderSide: BorderSide(color: Colors.red),
 
                                   // Rounded border.
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(9.0))),
+                                      BorderRadius.all(Radius.circular(9.0))),*/
                             ),
                           ),
                         ),
@@ -167,10 +198,11 @@ class _LoginState extends State<Login> {
                                       fontSize: 22),
                                 ),
                                 onPressed: () {
-                                  if (_formkey.currentState!.validate()) {
+                                  /*if (_formkey.currentState!.validate()) {
                                     // Prints a message if the form is valid.
                                     print('form submitted');
-                                  }
+                                  }*/
+                                  _handleLogin(context);
                                 },
                                 style: ElevatedButton.styleFrom(
                                   // Button background color.
