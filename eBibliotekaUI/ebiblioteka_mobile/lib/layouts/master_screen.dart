@@ -2,48 +2,58 @@ import 'package:ebiblioteka_mobile/screens/pocetna_screen.dart';
 import 'package:flutter/material.dart';
 
 class MasterScreen extends StatefulWidget {
-  const MasterScreen({Key? key}) : super(key: key);
+  final Widget child;
+  final int selectedIndex;
+
+  const MasterScreen({
+    Key? key,
+    required this.child,
+    this.selectedIndex = 0,
+  }) : super(key: key);
 
   @override
   State<MasterScreen> createState() => _MasterScreenState();
 }
 
 class _MasterScreenState extends State<MasterScreen> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
 
-  // Define your screens
-  final List<Widget> _screens = [const PocetnaScreen()];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.selectedIndex;
   }
 
-  void _navigateToScreen(int index) {
-    switch (index) {
-      case 0:
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const PocetnaScreen()),
-        );
-        break;
-      case 1:
-        //Navigator.of(context).pushReplacement(
-        //  MaterialPageRoute(builder: (context) => const KnjigeListScreen()),
-        //);
-        break;
-      case 2:
-        //Navigator.of(context).pushReplacement(
-        // MaterialPageRoute(builder: (context) => const FavoritesScreen()),
-        //);
-        break;
+  void _onItemTapped(int index) {
+    if (_selectedIndex != index) {
+      setState(() {
+        _selectedIndex = index;
+      });
+
+      switch (index) {
+        case 0:
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const PocetnaScreen()),
+          );
+          break;
+        case 1:
+          //Navigator.of(context).pushReplacement(
+          //MaterialPageRoute(builder: (context) => const CitaonicaScreen()),
+          //);
+          break;
+        case 2:
+          //Navigator.of(context).pushReplacement(
+          //MaterialPageRoute(builder: (context) => const ClanarineScreen()),
+          //);
+          break;
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: widget.child,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -55,7 +65,7 @@ class _MasterScreenState extends State<MasterScreen> {
           ],
         ),
         child: BottomNavigationBar(
-          items: <BottomNavigationBarItem>[
+          items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined),
               activeIcon: Icon(Icons.home),
@@ -73,10 +83,7 @@ class _MasterScreenState extends State<MasterScreen> {
             ),
           ],
           currentIndex: _selectedIndex,
-          onTap: (index) {
-            _onItemTapped(index);
-            _navigateToScreen(index);
-          },
+          onTap: _onItemTapped, // Simplified onTap callback
           selectedItemColor: Theme.of(context).primaryColor,
           unselectedItemColor: Colors.grey,
           showUnselectedLabels: true,

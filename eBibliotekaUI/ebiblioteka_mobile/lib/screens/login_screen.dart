@@ -1,7 +1,7 @@
 import 'package:ebiblioteka_mobile/providers/auth_provider.dart';
 import 'package:ebiblioteka_mobile/providers/korisnik_provider.dart';
+import 'package:ebiblioteka_mobile/screens/pocetna_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:ebiblioteka_mobile/layouts/master_screen.dart';
 //import 'package:form_field_validator/form_field_validator.dart';
 
 class Login extends StatelessWidget {
@@ -25,7 +25,7 @@ class Login extends StatelessWidget {
       //await provider.get();
       if (context.mounted) {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const MasterScreen()),
+          MaterialPageRoute(builder: (context) => const PocetnaScreen()),
           (Route<dynamic> route) => false,
         );
       }

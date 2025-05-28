@@ -253,7 +253,6 @@ class _KnjigeListScreenState extends State<KnjigeListScreen> {
               else
                 Column(
                   children: [
-                    // Book cards
                     Padding(
                       padding: const EdgeInsets.all(10),
                       child: GridView.builder(
