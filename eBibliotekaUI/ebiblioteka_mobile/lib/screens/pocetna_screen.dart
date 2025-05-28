@@ -1,7 +1,117 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-class PocetnaScreen extends StatelessWidget {
+import 'package:ebiblioteka_mobile/models/autor.dart';
+import 'package:ebiblioteka_mobile/models/knjiga.dart';
+import 'package:ebiblioteka_mobile/providers/knjiga_autor_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:ebiblioteka_mobile/providers/knjiga_provider.dart';
+import 'package:ebiblioteka_mobile/providers/zanr_provider.dart';
+import 'package:ebiblioteka_mobile/providers/autor_provider.dart';
+import 'package:ebiblioteka_mobile/providers/utils.dart';
+
+class PocetnaScreen extends StatefulWidget {
   const PocetnaScreen({Key? key}) : super(key: key);
+
+  @override
+  State<PocetnaScreen> createState() => _PocetnaScreenState();
+}
+
+class _PocetnaScreenState extends State<PocetnaScreen> {
+  final KnjigaProvider _knjigaProvider = KnjigaProvider();
+  final ZanrProvider _zanrProvider = ZanrProvider();
+  final AutorProvider _autorProvider = AutorProvider();
+  final KnjigaAutorProvider _knjigaAutorProvider = KnjigaAutorProvider();
+  List<Knjiga> knjige = [];
+  List<Knjiga> knjigaDana = [];
+  List<Autor> autori = [];
+  Map<int, String> zanrNames = {};
+  Map<int, List<String>> knjigeAutori = {};
+  bool isLoading = true;
+
+  int currentPage = 1;
+  int pageSize = 3;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      Map<String, dynamic> filter = {
+        'Page': currentPage,
+        'PageSize': pageSize,
+      };
+      Map<String, dynamic> knjigaDanafilter = {
+        'KnjigaDana': true,
+      };
+      Map<String, dynamic> filterZanr = {
+        'Page': 1,
+        'PageSize': 8,
+      };
+
+      var data = await _knjigaProvider.get(filter: filter);
+      var knjigaDanaData = await _knjigaProvider.get(filter: knjigaDanafilter);
+
+      var zanroviData = await _zanrProvider.get(filter: filterZanr);
+      var autoriData = await _autorProvider.get();
+      var knjigeAutoriData = await _knjigaAutorProvider.get();
+
+      var zanroviMap = {
+        for (var zanr in zanroviData.result)
+          zanr.zanrId ?? 0: zanr.naziv ?? "Nepoznat žanr"
+      };
+
+      var autoriMap = {
+        for (var autor in autoriData.result)
+          autor.autorId ?? 0: "${autor.ime} ${autor.prezime}"
+      };
+
+      var knjigeAutoriMap = <int, List<String>>{};
+      for (var knjigaAutor in knjigeAutoriData.result) {
+        var knjigaId = knjigaAutor.knjigaId;
+        var autorId = knjigaAutor.autorId;
+        if (knjigaId != null && autorId != null) {
+          knjigeAutoriMap.putIfAbsent(knjigaId, () => []);
+          var autorIme = autoriMap[autorId] ?? "Nepoznat autor";
+          knjigeAutoriMap[knjigaId]!.add(autorIme);
+        }
+      }
+
+      setState(() {
+        knjige = data.result;
+        zanrNames = zanroviMap;
+        knjigeAutori = knjigeAutoriMap;
+        isLoading = false;
+        autori = autoriData.result;
+        knjigaDana = knjigaDanaData.result;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Greška"),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,176 +129,203 @@ class PocetnaScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Knjiga dana',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+      body: isLoading
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Učitavanje sadržaja...'),
+                ],
               ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(Icons.book, size: 40),
-                      ),
-                      const SizedBox(width: 16),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Naziv knjige',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text('Autor knjige'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Genres section
-              const Text(
-                'Žanrovi',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 5,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.category),
-                          ),
-                          const SizedBox(height: 8),
-                          Text('Žanr ${index + 1}'),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Authors section (new)
-              const Text(
-                'Autori',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 5,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.person),
-                          ),
-                          const SizedBox(height: 8),
-                          Text('Autor ${index + 1}'),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Updated Books section
-              const Text(
-                'Knjige',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: 3,
-                itemBuilder: (context, index) {
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    child: ListTile(
-                      leading: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Icon(Icons.book),
-                      ),
-                      title: Text('Knjiga ${index + 1}'),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Autor: Ime Prezime'),
-                          Text('Godina izdanja: ${2020 + index}'),
-                        ],
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      isThreeLine: true,
+            )
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Knjiga dana',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                  );
-                },
+                    const SizedBox(height: 16),
+                    if (knjigaDana.isNotEmpty)
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 100,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: knjigaDana[0].slika != null
+                                    ? imageFromString(knjigaDana[0].slika!)
+                                    : const Icon(Icons.book, size: 40),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      knjigaDana[0].naziv ?? 'Naziv knjige',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(knjigeAutori[knjigaDana[0].knjigaId]
+                                            ?.join(", ") ??
+                                        "Nepoznat autor"),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                    // Genres section
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Žanrovi',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 100,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: zanrNames.length,
+                        itemBuilder: (context, index) {
+                          final zanr = zanrNames[index + 1];
+                          return Container(
+                            width: 70,
+                            margin: const EdgeInsets.only(right: 16),
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.category),
+                                ),
+                                const SizedBox(height: 8),
+                                Expanded(
+                                  child: Text(
+                                    zanr ?? 'Nepoznat Žanr',
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Autori',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 100,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: autori.length,
+                        itemBuilder: (context, index) {
+                          final autor = autori[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 16),
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: autor.slika != null
+                                      ? ClipOval(
+                                          child: imageFromString(autor.slika!),
+                                        )
+                                      : const Icon(Icons.person),
+                                ),
+                                const SizedBox(height: 8),
+                                Text('${autor.ime} ${autor.prezime}'),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Knjige',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: knjige.length,
+                      itemBuilder: (context, index) {
+                        final knjiga = knjige[index];
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          child: ListTile(
+                            leading: Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: knjiga.slika != null
+                                  ? imageFromString(knjiga.slika!)
+                                  : const Icon(Icons.book),
+                            ),
+                            title: Text(knjiga.naziv ?? 'Nema naziva'),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    "Autor: ${knjigeAutori[knjiga.knjigaId]?.join(", ") ?? "Nepoznat autor"}"),
+                                Text(
+                                    'Godina izdanja: ${knjiga.godinaIzdanja ?? 'Nepoznato'}'),
+                              ],
+                            ),
+                            trailing:
+                                const Icon(Icons.arrow_forward_ios, size: 16),
+                            isThreeLine: true,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }

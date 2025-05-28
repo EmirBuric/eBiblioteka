@@ -363,15 +363,35 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                   ? const Center(
                       child: CircularProgressIndicator(color: Colors.white))
                   : knjigaDana == null
-                      ? const Center(
-                          child: Text(
-                            'Nema knjige dana',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                      ? Column(
+                          children: [
+                            const Center(
+                              child: Text(
+                                'Nema knjige dana',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                            Center(
+                              child: ElevatedButton(
+                                onPressed: _openSearchModal,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: Colors.blue[700],
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 24, vertical: 12),
+                                ),
+                                child: const Text(
+                                  'Promijeni knjigu',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ),
+                          ],
                         )
                       : Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

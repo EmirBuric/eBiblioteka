@@ -1,8 +1,5 @@
 import 'package:ebiblioteka_mobile/providers/auth_provider.dart';
-import 'package:ebiblioteka_mobile/providers/knjiga_provider.dart';
 import 'package:ebiblioteka_mobile/providers/korisnik_provider.dart';
-import 'package:ebiblioteka_mobile/screens/pocetna_screen.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ebiblioteka_mobile/layouts/master_screen.dart';
 //import 'package:form_field_validator/form_field_validator.dart';
@@ -20,7 +17,7 @@ class Login extends StatelessWidget {
     try {
       final korisnikProvider = KorisnikProvider();
 
-      //await korisnikProvider.getTrenutniKorisnikUloga();
+      await korisnikProvider.getTrenutniKorisnikUloga();
 
       await korisnikProvider.getTrenutniKorisnikId();
 

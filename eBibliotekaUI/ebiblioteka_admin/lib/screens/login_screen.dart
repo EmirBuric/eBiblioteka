@@ -6,7 +6,6 @@ import '../providers/auth_provider.dart';
 import '../providers/korisnik_provider.dart';
 import 'knjige_list_screen.dart';
 
-// Stateful widget for the Login screen.
 class Login extends StatelessWidget {
   Login({super.key});
   final TextEditingController _usernameController = TextEditingController();
