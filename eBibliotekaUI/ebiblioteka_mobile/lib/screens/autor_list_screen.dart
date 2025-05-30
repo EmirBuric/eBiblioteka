@@ -3,6 +3,7 @@ import 'package:ebiblioteka_mobile/layouts/list_screen.dart';
 import 'package:ebiblioteka_mobile/models/autor.dart';
 import 'package:ebiblioteka_mobile/providers/autor_provider.dart';
 import 'package:ebiblioteka_mobile/providers/utils.dart';
+import 'package:ebiblioteka_mobile/screens/autor_details_screen.dart';
 
 class AutorListScreen extends StatelessWidget {
   final AutorProvider _autorProvider = AutorProvider();
@@ -12,7 +13,7 @@ class AutorListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListScreen<Autor>(
-      title: 'Knjige',
+      title: 'Autori',
       fetchData: (params) => _autorProvider.get(filter: params),
       onSearch: (value) {},
       addSearchParams: (String searchQuery) => {
@@ -30,7 +31,7 @@ class AutorListScreen extends StatelessWidget {
             ),
             child: autor.slika != null
                 ? imageFromString(autor.slika!)
-                : const Icon(Icons.book),
+                : const Icon(Icons.person),
           ),
           title: Text("${autor.ime} ${autor.prezime}"),
           subtitle: Column(
@@ -39,7 +40,17 @@ class AutorListScreen extends StatelessWidget {
               Text('Datum rođenja: ${formatDateToLocal(autor.datumRodjenja!)}'),
             ],
           ),
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
           isThreeLine: true,
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => AutorDetailsScreen(
+                  autor: autor,
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

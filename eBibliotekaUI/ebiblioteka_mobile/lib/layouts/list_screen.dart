@@ -9,7 +9,7 @@ class ListScreen<T> extends StatefulWidget {
   final Widget Function(T item) itemBuilder;
   final Function(String) onSearch;
   final Map<String, dynamic> Function(String)? addSearchParams;
-  final int selectedIndex; // Add this
+  final int selectedIndex;
 
   const ListScreen({
     Key? key,
@@ -18,7 +18,7 @@ class ListScreen<T> extends StatefulWidget {
     required this.itemBuilder,
     required this.onSearch,
     this.addSearchParams,
-    this.selectedIndex = 1, // Default to 1 or whatever index you prefer
+    this.selectedIndex = 1,
   }) : super(key: key);
 
   @override
@@ -75,27 +75,19 @@ class _ListScreenState<T> extends State<ListScreen<T>> {
         isLoading = true;
       });
 
-      // Base filter with pagination
       Map<String, dynamic> filter = {
         'Page': currentPage,
         'PageSize': pageSize,
       };
 
-      // Add search parameters only if there's a search query
       if (searchQuery.isNotEmpty) {
         if (widget.addSearchParams != null) {
           var searchParams = widget.addSearchParams!(searchQuery);
           filter.addAll(searchParams);
         } else {
-          // Default search behavior
           filter['SearchTerm'] = searchQuery;
         }
       }
-
-      print('Search query: $searchQuery'); // Debug search query
-      print(
-          'Search params: ${widget.addSearchParams?.call(searchQuery)}'); // Debug search params
-      print('Final filter: $filter'); // Debug final filter
 
       final result = await widget.fetchData(filter);
 
@@ -163,12 +155,10 @@ class _ListScreenState<T> extends State<ListScreen<T>> {
                 ),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
-                  onPressed: () =>
-                      _onSearchChanged(), // Updated to use _onSearchChanged
+                  onPressed: () => _onSearchChanged(),
                 ),
               ),
-              onChanged: (_) =>
-                  _onSearchChanged(), // Add this line to trigger search on each change
+              onChanged: (_) => _onSearchChanged(),
             ),
           ),
         ),

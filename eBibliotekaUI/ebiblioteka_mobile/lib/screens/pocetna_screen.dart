@@ -3,9 +3,13 @@ import 'dart:async';
 import 'package:ebiblioteka_mobile/layouts/master_screen.dart';
 import 'package:ebiblioteka_mobile/models/autor.dart';
 import 'package:ebiblioteka_mobile/models/knjiga.dart';
+import 'package:ebiblioteka_mobile/models/zanr.dart';
 import 'package:ebiblioteka_mobile/providers/knjiga_autor_provider.dart';
+import 'package:ebiblioteka_mobile/screens/autor_details_screen.dart';
 import 'package:ebiblioteka_mobile/screens/autor_list_screen.dart';
+import 'package:ebiblioteka_mobile/screens/knjiga_details_screen.dart';
 import 'package:ebiblioteka_mobile/screens/knjige_list_screen.dart';
+import 'package:ebiblioteka_mobile/screens/zanr_details_screen.dart';
 import 'package:ebiblioteka_mobile/screens/zanr_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ebiblioteka_mobile/providers/knjiga_provider.dart';
@@ -152,42 +156,54 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                       ),
                       const SizedBox(height: 16),
                       if (knjigaDana.isNotEmpty)
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 100,
-                                  height: 150,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: knjigaDana[0].slika != null
-                                      ? imageFromString(knjigaDana[0].slika!)
-                                      : const Icon(Icons.book, size: 40),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => KnjigaDetailsScreen(
+                                  knjiga: knjigaDana[0],
                                 ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        knjigaDana[0].naziv ?? 'Naziv knjige',
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 100,
+                                    height: 150,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: knjigaDana[0].slika != null
+                                        ? imageFromString(knjigaDana[0].slika!)
+                                        : const Icon(Icons.book, size: 40),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          knjigaDana[0].naziv ?? 'Naziv knjige',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(knjigeAutori[knjigaDana[0].knjigaId]
-                                              ?.join(", ") ??
-                                          "Nepoznat autor"),
-                                    ],
+                                        const SizedBox(height: 8),
+                                        Text(
+                                            knjigeAutori[knjigaDana[0].knjigaId]
+                                                    ?.join(", ") ??
+                                                "Nepoznat autor"),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -224,34 +240,49 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                           scrollDirection: Axis.horizontal,
                           itemCount: zanrNames.length,
                           itemBuilder: (context, index) {
-                            final zanr = zanrNames[index + 1];
-                            return Container(
-                              width: 70,
-                              margin: const EdgeInsets.only(right: 16),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[300],
-                                      shape: BoxShape.circle,
+                            final zanrId = index + 1;
+                            final zanr = Zanr(
+                              zanrId: zanrId,
+                              naziv: zanrNames[zanrId],
+                            );
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => ZanrDetailsScreen(
+                                      zanr: zanr,
                                     ),
-                                    child: const Icon(Icons.category),
                                   ),
-                                  const SizedBox(height: 8),
-                                  Expanded(
-                                    child: Text(
-                                      zanr ?? 'Nepoznat Žanr',
-                                      textAlign: TextAlign.center,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 2,
-                                      style: const TextStyle(
-                                        fontSize: 12,
+                                );
+                              },
+                              child: Container(
+                                width: 70,
+                                margin: const EdgeInsets.only(right: 16),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      height: 60,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(Icons.category),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Expanded(
+                                      child: Text(
+                                        zanrNames[zanrId] ?? 'Nepoznat Žanr',
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             );
                           },
@@ -291,26 +322,37 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                           itemCount: autori.length,
                           itemBuilder: (context, index) {
                             final autor = autori[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 16),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => AutorDetailsScreen(
+                                      autor: autor,
                                     ),
-                                    child: autor.slika != null
-                                        ? ClipOval(
-                                            child:
-                                                imageFromString(autor.slika!),
-                                          )
-                                        : const Icon(Icons.person),
                                   ),
-                                  const SizedBox(height: 8),
-                                  Text('${autor.ime} ${autor.prezime}'),
-                                ],
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 16),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      height: 60,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: autor.slika != null
+                                          ? ClipOval(
+                                              child:
+                                                  imageFromString(autor.slika!),
+                                            )
+                                          : const Icon(Icons.person),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text('${autor.ime} ${autor.prezime}'),
+                                  ],
+                                ),
                               ),
                             );
                           },
@@ -351,30 +393,65 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                           final knjiga = knjige[index];
                           return Card(
                             margin: const EdgeInsets.only(bottom: 16),
-                            child: ListTile(
-                              leading: Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => KnjigaDetailsScreen(
+                                      knjiga: knjiga,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  children: [
+                                    // Book image
+                                    Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: knjiga.slika != null
+                                          ? imageFromString(knjiga.slika!)
+                                          : const Icon(Icons.book),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    // Book info
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            knjiga.naziv ?? 'Nema naziva',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            "Autor: ${knjigeAutori[knjiga.knjigaId]?.join(", ") ?? "Nepoznat autor"}",
+                                            style:
+                                                const TextStyle(fontSize: 14),
+                                          ),
+                                          Text(
+                                            'Godina izdanja: ${knjiga.godinaIzdanja ?? 'Nepoznato'}',
+                                            style:
+                                                const TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    // Arrow icon
+                                    const Icon(Icons.arrow_forward_ios,
+                                        size: 16),
+                                  ],
                                 ),
-                                child: knjiga.slika != null
-                                    ? imageFromString(knjiga.slika!)
-                                    : const Icon(Icons.book),
                               ),
-                              title: Text(knjiga.naziv ?? 'Nema naziva'),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                      "Autor: ${knjigeAutori[knjiga.knjigaId]?.join(", ") ?? "Nepoznat autor"}"),
-                                  Text(
-                                      'Godina izdanja: ${knjiga.godinaIzdanja ?? 'Nepoznato'}'),
-                                ],
-                              ),
-                              trailing:
-                                  const Icon(Icons.arrow_forward_ios, size: 16),
-                              isThreeLine: true,
                             ),
                           );
                         },

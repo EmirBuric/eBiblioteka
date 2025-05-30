@@ -83,7 +83,7 @@ class _MasterScreenState extends State<MasterScreen> {
             ),
           ],
           currentIndex: _selectedIndex,
-          onTap: _onItemTapped, // Simplified onTap callback
+          onTap: _onItemTapped,
           selectedItemColor: Theme.of(context).primaryColor,
           unselectedItemColor: Colors.grey,
           showUnselectedLabels: true,

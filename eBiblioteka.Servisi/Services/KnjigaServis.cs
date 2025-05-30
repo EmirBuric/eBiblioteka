@@ -25,7 +25,7 @@ namespace eBiblioteka.Servisi.Services
 
         public override IQueryable<Knjiga> AddFilter(KnjigaSearchObject search, IQueryable<Knjiga> query)
         {
-            query= query.Where(x=>x.IsDeleted==false);
+            query = query.Where(x => x.IsDeleted == false);
 
             if (!string.IsNullOrEmpty(search.NazivGTE))
             {
@@ -52,18 +52,18 @@ namespace eBiblioteka.Servisi.Services
                 query = query.Where(x => x.Kolicina >= search.KolicinaGTE);
             }
 
-            if (!string.IsNullOrEmpty(search.Autor))
+            if (search.AutorId != null)
             {
-                query = query.Include(x => x.KnjigaAutors)
+                query = query
+                    .Include(x => x.KnjigaAutors)
                     .ThenInclude(x => x.Autor)
-                    .Where(x =>
-                    (x.KnjigaAutors.Where(
-                        y => (y.Autor.Ime + " " + y.Autor.Prezime).ToLower().StartsWith(search.Autor)
-                        )).Count() > 0);
+                    .Where(x => x.KnjigaAutors
+                    .Any(y => y.AutorId == search.AutorId));
+
             }
-            if(search.KnjigaDana!=null)
+            if (search.KnjigaDana != null)
             {
-                query=query.Where(x=>x.KnjigaDana==search.KnjigaDana);
+                query = query.Where(x => x.KnjigaDana == search.KnjigaDana);
             }
 
             if (search.Preporuceno != null)
@@ -146,7 +146,7 @@ namespace eBiblioteka.Servisi.Services
 
         public async Task Delete(int id)
         {
-            var knjiga= await Context.Knjigas.FirstOrDefaultAsync(x => x.KnjigaId == id);
+            var knjiga = await Context.Knjigas.FirstOrDefaultAsync(x => x.KnjigaId == id);
 
             if (knjiga == null)
             {
@@ -154,7 +154,7 @@ namespace eBiblioteka.Servisi.Services
             }
 
             knjiga.IsDeleted = true;
-            knjiga.VrijemeBrisanja=DateTime.Now;
+            knjiga.VrijemeBrisanja = DateTime.Now;
             Context.Update(knjiga);
 
             await Context.SaveChangesAsync();
@@ -162,15 +162,15 @@ namespace eBiblioteka.Servisi.Services
 
         public async Task SelectKnjigaDana(int id)
         {
-            var staraKnjigaDana = await Context.Knjigas.FirstOrDefaultAsync(x=>x.KnjigaDana==true);
-            
+            var staraKnjigaDana = await Context.Knjigas.FirstOrDefaultAsync(x => x.KnjigaDana == true);
+
             if (staraKnjigaDana != null)
             {
                 staraKnjigaDana.KnjigaDana = false;
             }
 
-            var novaKnjigaDana= await Context.Knjigas.FirstOrDefaultAsync(x=>x.KnjigaId==id);
-            if(novaKnjigaDana == null)
+            var novaKnjigaDana = await Context.Knjigas.FirstOrDefaultAsync(x => x.KnjigaId == id);
+            if (novaKnjigaDana == null)
             {
                 throw new UserException("Knjiga sa ovim ID-em ne postoji");
             }
@@ -179,20 +179,20 @@ namespace eBiblioteka.Servisi.Services
                 throw new UserException("Knjiga je nedostupna i ne mozete ju postaviti za knjigu dana");
             }
 
-            novaKnjigaDana.KnjigaDana=true;
+            novaKnjigaDana.KnjigaDana = true;
 
             await Context.SaveChangesAsync();
         }
 
         public async Task SelectPreporucenaKnjiga(List<int> ids)
         {
-            if(ids.Count()>3)
+            if (ids.Count() > 3)
             {
                 throw new UserException("Preporuke imaju limit od tri knjige");
             }
-            if(!ids.IsNullOrEmpty())
+            if (!ids.IsNullOrEmpty())
             {
-                var preporuke = await Context.Knjigas.Where(x => x.Preporuceno==true).ToListAsync();
+                var preporuke = await Context.Knjigas.Where(x => x.Preporuceno == true).ToListAsync();
 
                 var novePreporukeIds = ids.Except(preporuke.Select(x => x.KnjigaId)).ToList();
                 var starePreporuke = preporuke.Where(x => !ids.Contains(x.KnjigaId)).ToList();

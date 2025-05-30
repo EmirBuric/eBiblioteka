@@ -16,7 +16,7 @@ namespace eBiblioteka.Modeli.SearchObjects
 
         public int? KolicinaGTE { get; set; }
 
-        public string? Autor { get; set; }
+        public int? AutorId { get; set; }
 
         public bool? KnjigaDana { get; set; }
 

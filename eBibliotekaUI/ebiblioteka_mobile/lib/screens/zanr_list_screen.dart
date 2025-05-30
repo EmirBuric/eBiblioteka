@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ebiblioteka_mobile/layouts/list_screen.dart';
 import 'package:ebiblioteka_mobile/models/zanr.dart';
 import 'package:ebiblioteka_mobile/providers/zanr_provider.dart';
+import 'package:ebiblioteka_mobile/screens/zanr_details_screen.dart';
 
 class ZanrListScreen extends StatelessWidget {
   final ZanrProvider _zanrProvider = ZanrProvider();
@@ -44,7 +45,15 @@ class ZanrListScreen extends StatelessWidget {
             ),
           ),
           trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () {},
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ZanrDetailsScreen(
+                  zanr: zanr,
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

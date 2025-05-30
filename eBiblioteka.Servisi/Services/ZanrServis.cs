@@ -5,6 +5,7 @@ using eBiblioteka.Modeli.UpsertRequest;
 using eBiblioteka.Servisi.Database;
 using eBiblioteka.Servisi.Interfaces;
 using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,11 @@ namespace eBiblioteka.Servisi.Services
             }
 
             base.BeforeInsert(insert, entity);
+        }
+
+        public override async Task<Zanr> AddIncludeId(IQueryable<Zanr> query, int id)
+        {
+            return await query.FirstOrDefaultAsync(z => z.ZanrId == id);
         }
     }
 }

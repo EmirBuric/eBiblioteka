@@ -87,7 +87,8 @@ namespace eBiblioteka.Servisi.Services
 
         public virtual async Task<TDbEntity> AddIncludeId(IQueryable<TDbEntity> query, int id)
         {
-            return (TDbEntity)query;
+            query = AddInclude(query);
+            return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
         }
     }
 }
