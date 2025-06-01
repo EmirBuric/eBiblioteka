@@ -176,7 +176,7 @@ public partial class Db180105Context : DbContext
 
             entity.ToTable("Recenzija");
 
-            entity.Property(e => e.Odobrena).HasDefaultValue(false);
+            entity.Property(e => e.Odobrena);
 
             entity.HasOne(d => d.Knjiga).WithMany(p => p.Recenzijas)
                 .HasForeignKey(d => d.KnjigaId)

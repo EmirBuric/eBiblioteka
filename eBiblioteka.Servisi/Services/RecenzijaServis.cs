@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace eBiblioteka.Servisi.Services
 {
-    public class RecenzijaServis : BaseCRUDServis<RecenzijaDTO, RecenzijaSearchObject, Recenzija, RecenzijaUpsertRequest, RecenzijaUpsertRequest>,IRecenzijaServis
+    public class RecenzijaServis : BaseCRUDServis<RecenzijaDTO, RecenzijaSearchObject, Recenzija, RecenzijaUpsertRequest, RecenzijaUpsertRequest>, IRecenzijaServis
     {
         public RecenzijaServis(Db180105Context context, IMapper mapper) : base(context, mapper)
         {
@@ -32,9 +32,9 @@ namespace eBiblioteka.Servisi.Services
                 query = query.Where(x => x.KnjigaId == search.KnjigaId);
             }
 
-            if(search.OcjenaGTE != null)
+            if (search.OcjenaGTE != null)
             {
-                query=query.Where(x=>x.Ocjena>=search.OcjenaGTE);
+                query = query.Where(x => x.Ocjena >= search.OcjenaGTE);
             }
 
             if (search.OcjenaLTE != null)
@@ -51,6 +51,10 @@ namespace eBiblioteka.Servisi.Services
             {
                 query = query.Include(x => x.Korisnik).Where(x => (x.Korisnik.Ime + " " + x.Korisnik.Prezime).ToLower().StartsWith(search.ImePrezimeGTE));
             }
+            if (search.Odobrena != null)
+            {
+                query = query.Where(x => x.Odobrena == search.Odobrena);
+            }
             return base.AddFilter(search, query);
         }
 
@@ -64,13 +68,19 @@ namespace eBiblioteka.Servisi.Services
 
         public override Task BeforeInsert(RecenzijaUpsertRequest insert, Recenzija entity, CancellationToken cancellationToken = default)
         {
-            entity.DatumRecenzije=DateTime.Now;
+            if (Context.Recenzijas.Any(x => x.KorisnikId == insert.KorisnikId && x.KnjigaId == insert.KnjigaId))
+            {
+                throw new UserException("Vec ste ostavili rcenziju za ovu knjigu");
+            }
+            entity.Odobrena=null;
+            entity.DatumRecenzije = DateTime.Now;
 
             return base.BeforeInsert(insert, entity, cancellationToken);
         }
 
         public override Task BeforeUpdate(RecenzijaUpsertRequest update, Recenzija entity, CancellationToken cancellationToken = default)
         {
+            entity.Odobrena=null;
             entity.DatumRecenzije = DateTime.Now;
             return base.BeforeUpdate(update, entity, cancellationToken);
         }
@@ -80,24 +90,24 @@ namespace eBiblioteka.Servisi.Services
             query = query.Include("Korisnik");
             query = query.Include("Knjiga");
 
-            var entity= await query.FirstOrDefaultAsync(x=>x.RecenzijaId==id);
+            var entity = await query.FirstOrDefaultAsync(x => x.RecenzijaId == id);
 
             return entity;
         }
 
         public async Task Odbij(int id)
         {
-            var recenzija= await Context.Recenzijas.FirstOrDefaultAsync(x=>x.RecenzijaId == id);
-            if(recenzija==null)
+            var recenzija = await Context.Recenzijas.FirstOrDefaultAsync(x => x.RecenzijaId == id);
+            if (recenzija == null)
             {
                 throw new UserException("Nema recenzije sa ovim ID-em");
             }
-            recenzija.Odobrena=false;   
+            recenzija.Odobrena = false;
             Context.Update(recenzija);
             await Context.SaveChangesAsync();
         }
 
-        public async Task  Prihvati(int id)
+        public async Task Prihvati(int id)
         {
             var recenzija = await Context.Recenzijas.FirstOrDefaultAsync(x => x.RecenzijaId == id);
             if (recenzija == null)

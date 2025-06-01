@@ -3,6 +3,7 @@ import 'package:ebiblioteka_mobile/providers/autor_provider.dart';
 import 'package:ebiblioteka_mobile/providers/knjiga_autor_provider.dart';
 import 'package:ebiblioteka_mobile/providers/knjiga_provider.dart';
 import 'package:ebiblioteka_mobile/providers/zanr_provider.dart';
+import 'package:ebiblioteka_mobile/screens/rezervacija_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ebiblioteka_mobile/layouts/master_screen.dart';
 import 'package:ebiblioteka_mobile/models/knjiga.dart';
@@ -174,12 +175,19 @@ class _KnjigaDetailsScreenState extends State<KnjigaDetailsScreen> {
                                 ],
                                 const SizedBox(height: 16),
                                 ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => RezervacijaScreen(
+                                          knjiga: widget.knjiga,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor:
                                         Theme.of(context).primaryColor,
-                                    foregroundColor:
-                                        Colors.white, // Add this line
+                                    foregroundColor: Colors.white,
                                     minimumSize:
                                         const Size(double.infinity, 45),
                                   ),

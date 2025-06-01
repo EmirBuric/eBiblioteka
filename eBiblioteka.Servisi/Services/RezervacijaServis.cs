@@ -73,6 +73,11 @@ namespace eBiblioteka.Servisi.Services
                 query = query.Include(x => x.Korisnik).Where(x => (x.Korisnik.Ime + " " + x.Korisnik.Prezime).ToLower().StartsWith(search.ImePrezimeGTE));
             }
 
+            if (search.Odobrena != null)
+            {
+                query=query.Where(x=>x.Odobrena==search.Odobrena);
+            }
+
             return query;
         }
 
