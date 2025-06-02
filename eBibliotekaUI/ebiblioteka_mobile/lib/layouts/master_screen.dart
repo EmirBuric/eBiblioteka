@@ -1,3 +1,4 @@
+import 'package:ebiblioteka_mobile/screens/citaonica_screen.dart';
 import 'package:ebiblioteka_mobile/screens/pocetna_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -37,9 +38,9 @@ class _MasterScreenState extends State<MasterScreen> {
           );
           break;
         case 1:
-          //Navigator.of(context).pushReplacement(
-          //MaterialPageRoute(builder: (context) => const CitaonicaScreen()),
-          //);
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const CitaonicaScreen()),
+          );
           break;
         case 2:
           //Navigator.of(context).pushReplacement(

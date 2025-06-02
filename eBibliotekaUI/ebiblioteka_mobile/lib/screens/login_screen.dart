@@ -84,7 +84,7 @@ class Login extends StatelessWidget {
                     border: Border.all(color: Colors.blueGrey)),
                 child: Image.asset(
                   // Path to the logo image.
-                  'assets/Logo.png',
+                  'assets/images/Logo.png',
                   height: 30,
                   width: 20,
                 ),

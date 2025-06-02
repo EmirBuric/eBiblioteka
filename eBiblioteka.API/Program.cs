@@ -1,4 +1,5 @@
 using eBiblioteka.API.Auth;
+using eBiblioteka.API.BackgroundServisi;
 using eBiblioteka.API.Filteri;
 using eBiblioteka.Servisi.Database;
 using eBiblioteka.Servisi.Interfaces;
@@ -26,6 +27,8 @@ builder.Services.AddTransient<IRecenzijaServis, RecenzijaServis>();
 builder.Services.AddTransient<ICitaonicaServis, CitaonicaServis>();
 builder.Services.AddTransient<ITerminServis, TerminServis>();
 builder.Services.AddTransient<IClanarinaServis, ClanarinaSerivis>();
+builder.Services.AddHostedService<KreirajTerminServis>();
+builder.Services.AddHostedService<ProvjeriJeLiTerminProsaoServis>();
 
 builder.Services.AddHttpContextAccessor();
 

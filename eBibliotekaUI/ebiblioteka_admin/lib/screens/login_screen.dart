@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../providers/knjiga_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/korisnik_provider.dart';
-import 'knjige_list_screen.dart';
 
 class Login extends StatelessWidget {
   Login({super.key});

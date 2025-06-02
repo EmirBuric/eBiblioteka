@@ -16,7 +16,11 @@ namespace eBiblioteka.Modeli.SearchObjects
 
         public bool? JeRezervisan { get; set; }
 
+        public bool? JeProsao { get; set; }
+
         public int? CitaonicaId { get; set; }
+
+        public int? KorisnikId { get; set; }
 
         public string? ImePrezimeGTE { get; set; }
     }

@@ -17,6 +17,8 @@ public partial class Termin
 
     public bool? JeRezervisan { get; set; }
 
+    public bool JeProsao { get; set; }
+
     public int? CitaonicaId { get; set; }
 
     public virtual Citaonica? Citaonica { get; set; }
