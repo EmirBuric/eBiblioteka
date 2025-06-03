@@ -5,11 +5,12 @@ import '../models/clanarina.dart';
 import '../models/korisnik.dart';
 import '../providers/clanarina_provider.dart';
 import '../providers/tip_clanarine_provider.dart';
-import '../providers/auth_provider.dart';
 import 'package:intl/intl.dart';
 
 class UplataClanarineScreen extends StatefulWidget {
-  const UplataClanarineScreen({super.key});
+  final Korisnik? korisnik;
+
+  const UplataClanarineScreen({super.key, this.korisnik});
 
   @override
   State<UplataClanarineScreen> createState() => _UplataClanarineScreenState();
@@ -26,13 +27,13 @@ class _UplataClanarineScreenState extends State<UplataClanarineScreen> {
   @override
   void initState() {
     super.initState();
+    korisnik = widget.korisnik;
     _loadData();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    korisnik = ModalRoute.of(context)?.settings.arguments as Korisnik?;
   }
 
   Future<void> _loadData() async {
@@ -40,16 +41,21 @@ class _UplataClanarineScreenState extends State<UplataClanarineScreen> {
       setState(() => isLoading = true);
 
       var tipoviData = await _tipClanarineProvider.get();
-      var zadnjaData = await _clanarinaProvider.get(filter: {
-        'KorisnikId': korisnik?.korisnikId ?? AuthProvider.trenutniKorisnikId
-      });
 
-      setState(() {
-        tipoviClanarine = tipoviData.result;
-        zadnjaClanarina =
-            zadnjaData.result.isNotEmpty ? zadnjaData.result.first : null;
-        isLoading = false;
-      });
+      if (korisnik != null) {
+        zadnjaClanarina = await _clanarinaProvider
+            .getClanarinaByKorisnikId(korisnik!.korisnikId!);
+
+        setState(() {
+          tipoviClanarine = tipoviData.result;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          tipoviClanarine = tipoviData.result;
+          isLoading = false;
+        });
+      }
     } catch (e) {
       showDialog(
         context: context,
@@ -69,12 +75,25 @@ class _UplataClanarineScreenState extends State<UplataClanarineScreen> {
 
   Future<void> _uplatiClanarinu(int tipClanarineId) async {
     try {
-      await _clanarinaProvider.insert({
-        'korisnikId': korisnik?.korisnikId ?? AuthProvider.trenutniKorisnikId,
+      if (korisnik == null) {
+        throw Exception('Korisnik nije odabran');
+      }
+
+      final Map<String, dynamic> clanarinaData = {
+        'korisnikId': korisnik!.korisnikId,
         'tipClanarineId': tipClanarineId,
-        'statusClanarine': 'Aktivan',
+        'statusClanarine': true,
         'datumUplate': DateTime.now().toIso8601String()
-      });
+      };
+
+      if (zadnjaClanarina != null) {
+        // Ažuriranje postojeće članarine
+        await _clanarinaProvider.update(
+            zadnjaClanarina!.clanarinaId!, clanarinaData);
+      } else {
+        // Kreiranje nove članarine
+        await _clanarinaProvider.insert(clanarinaData);
+      }
 
       await _loadData();
 
@@ -170,7 +189,7 @@ class _UplataClanarineScreenState extends State<UplataClanarineScreen> {
                                   ),
                                 ),
                               ] else
-                                const Text('Nemate uplaćenu članarinu'),
+                                const Text('Nema uplaćene članarine'),
                             ],
                           ),
                         ),

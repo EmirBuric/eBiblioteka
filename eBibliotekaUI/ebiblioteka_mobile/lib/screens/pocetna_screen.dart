@@ -31,6 +31,7 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
   final KnjigaAutorProvider _knjigaAutorProvider = KnjigaAutorProvider();
   List<Knjiga> knjige = [];
   List<Knjiga> knjigaDana = [];
+  List<Knjiga> preporuceneKnjige = [];
   List<Autor> autori = [];
   Map<int, String> zanrNames = {};
   Map<int, List<String>> knjigeAutori = {};
@@ -58,6 +59,11 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
       Map<String, dynamic> knjigaDanafilter = {
         'KnjigaDana': true,
       };
+      Map<String, dynamic> preporuceneKnjigeFilter = {
+        'Preporuceno': true,
+        'Page': 1,
+        'PageSize': 3,
+      };
       Map<String, dynamic> filterZanr = {
         'Page': 1,
         'PageSize': 8,
@@ -65,6 +71,8 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
 
       var data = await _knjigaProvider.get(filter: filter);
       var knjigaDanaData = await _knjigaProvider.get(filter: knjigaDanafilter);
+      var preporuceneKnjigeData =
+          await _knjigaProvider.get(filter: preporuceneKnjigeFilter);
 
       var zanroviData = await _zanrProvider.get(filter: filterZanr);
       var autoriData = await _autorProvider.get();
@@ -98,6 +106,7 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
         isLoading = false;
         autori = autoriData.result;
         knjigaDana = knjigaDanaData.result;
+        preporuceneKnjige = preporuceneKnjigeData.result;
       });
     } catch (e) {
       setState(() {
@@ -220,6 +229,100 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                           ),
                         ),
                       const SizedBox(height: 24),
+
+                      // Sekcija "Naša preporuka"
+                      const Text(
+                        'Naša preporuka',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 16),
+                      if (preporuceneKnjige.isNotEmpty)
+                        SizedBox(
+                          height: 220,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: preporuceneKnjige.length,
+                            itemBuilder: (context, index) {
+                              final knjiga = preporuceneKnjige[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => KnjigaDetailsScreen(
+                                        knjiga: knjiga,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  width: 150,
+                                  margin: const EdgeInsets.only(right: 16),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        height: 150,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          color: Colors.grey[200],
+                                        ),
+                                        child: knjiga.slika != null
+                                            ? ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                child: imageFromString(
+                                                    knjiga.slika!),
+                                              )
+                                            : const Center(
+                                                child:
+                                                    Icon(Icons.book, size: 40),
+                                              ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        knjiga.naziv ?? 'Naziv knjige',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        knjigeAutori[knjiga.knjigaId]
+                                                ?.join(", ") ??
+                                            "Nepoznat autor",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        )
+                      else
+                        const Card(
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Center(
+                              child: Text(
+                                'Trenutno nema preporučenih knjiga',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 24),
+
                       GestureDetector(
                         onTap: () {
                           Navigator.of(context).push(

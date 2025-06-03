@@ -30,9 +30,9 @@ namespace eBiblioteka.Servisi.Services
                 query=query.Where(x=>x.TipClanarineId==search.TipClanarineId);
             }
 
-            if(!string.IsNullOrEmpty(search.StatusClanarineGTE))
+            if (search.StatusClanarine!=null)
             {
-                query = query.Where(x => x.StatusClanarine.ToLower().StartsWith(search.StatusClanarineGTE));
+                query = query.Where(x => x.StatusClanarine==search.StatusClanarine);
             }
 
             if (search.DatumUplateGTE != null) 
@@ -96,6 +96,15 @@ namespace eBiblioteka.Servisi.Services
             entity.DatumIsteka = update.DatumUplate.AddMonths(tip.VrijemeTrajanja);
 
             await base.BeforeUpdate(update, entity, cancellationToken);
+        }
+
+        public async Task<ClanarinaDTO> GetClanarinaByKorisnikId(int korisnikId)
+        {
+            var clanarina= await Context.Clanarinas.FirstOrDefaultAsync(x=>x.KorisnikId == korisnikId);
+            if (clanarina == null)
+                return null;
+
+            return Mapper.Map<ClanarinaDTO>(clanarina);
         }
     }
 }

@@ -1,4 +1,5 @@
 import 'package:ebiblioteka_mobile/screens/citaonica_screen.dart';
+import 'package:ebiblioteka_mobile/screens/clanarine_screen.dart';
 import 'package:ebiblioteka_mobile/screens/pocetna_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -43,9 +44,9 @@ class _MasterScreenState extends State<MasterScreen> {
           );
           break;
         case 2:
-          //Navigator.of(context).pushReplacement(
-          //MaterialPageRoute(builder: (context) => const ClanarineScreen()),
-          //);
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const ClanarineScreen()),
+          );
           break;
       }
     }
@@ -78,8 +79,8 @@ class _MasterScreenState extends State<MasterScreen> {
               label: 'Čitaonica',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.bookmark_border),
-              activeIcon: Icon(Icons.bookmark),
+              icon: Icon(Icons.attach_money_outlined),
+              activeIcon: Icon(Icons.attach_money),
               label: 'Članarine',
             ),
           ],

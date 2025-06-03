@@ -43,7 +43,7 @@ class Login extends StatelessWidget {
       await provider.get();
 
       if (context.mounted) {
-        Navigator.of(context).push(
+        Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const PocetnaScreen()),
         );
       }
@@ -169,6 +169,7 @@ class Login extends StatelessWidget {
                           ),
                           child: TextFormField(
                             controller: _passwordController,
+                            obscureText: true,
                             /* validator: MultiValidator([
                               RequiredValidator(
 

@@ -10,7 +10,7 @@ namespace eBiblioteka.Modeli.DTOs
     {
         public int ClanarinaId { get; set; }
 
-        public string StatusClanarine { get; set; } 
+        public bool StatusClanarine { get; set; } 
 
         public DateTime DatumUplate { get; set; }
 

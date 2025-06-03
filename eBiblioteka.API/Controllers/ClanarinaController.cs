@@ -2,6 +2,7 @@
 using eBiblioteka.Modeli.SearchObjects;
 using eBiblioteka.Modeli.UpsertRequest;
 using eBiblioteka.Servisi.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace eBiblioteka.API.Controllers
 {
@@ -9,6 +10,12 @@ namespace eBiblioteka.API.Controllers
     {
         public ClanarinaController(IClanarinaServis servis) : base(servis)
         {
+        }
+
+        [HttpGet("ByKorisnikId")]
+        public async Task<ClanarinaDTO> GetClanarinaByKorisnikId(int korisnikId)
+        {
+            return await (_servis as IClanarinaServis).GetClanarinaByKorisnikId(korisnikId);
         }
     }
 }

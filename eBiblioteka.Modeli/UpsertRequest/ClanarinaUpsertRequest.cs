@@ -9,8 +9,8 @@ namespace eBiblioteka.Modeli.UpsertRequest
 {
     public class ClanarinaUpsertRequest
     {
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Ovo polje ne može biti prazno")]
-        public string StatusClanarine { get; set; }
+        [Required(ErrorMessage = "Ovo polje ne može biti prazno")]
+        public bool StatusClanarine { get; set; }
 
         [Required(ErrorMessage = "Ovo polje ne može biti prazno")]
         public DateTime DatumUplate { get; set; }

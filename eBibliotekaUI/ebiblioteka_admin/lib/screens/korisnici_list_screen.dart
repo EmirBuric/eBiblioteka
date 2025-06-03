@@ -4,6 +4,7 @@ import '../models/korisnik.dart';
 import '../providers/korisnik_provider.dart';
 import '../providers/uloga_provider.dart';
 import '../providers/auth_provider.dart';
+import '../screens/uplata_clanarine_screen.dart';
 
 class KorisniciListScreen extends StatefulWidget {
   const KorisniciListScreen({super.key});
@@ -354,11 +355,14 @@ class _KorisniciListScreenState extends State<KorisniciListScreen> {
                                                                           .trenutniKorisnikId
                                                                   ? null
                                                                   : () {
-                                                                      Navigator.pushNamed(
-                                                                          context,
-                                                                          '/uplata-clanarine',
-                                                                          arguments:
-                                                                              korisnik);
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .push(
+                                                                        MaterialPageRoute(
+                                                                          builder: (context) =>
+                                                                              UplataClanarineScreen(korisnik: korisnik),
+                                                                        ),
+                                                                      );
                                                                     },
                                                             ),
                                                             IconButton(

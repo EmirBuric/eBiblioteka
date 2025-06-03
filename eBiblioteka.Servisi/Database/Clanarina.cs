@@ -7,7 +7,7 @@ public partial class Clanarina
 {
     public int ClanarinaId { get; set; }
 
-    public string StatusClanarine { get; set; } = null!;
+    public bool StatusClanarine { get; set; }
 
     public DateTime DatumUplate { get; set; }
 

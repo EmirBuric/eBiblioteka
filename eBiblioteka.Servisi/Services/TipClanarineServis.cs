@@ -3,6 +3,7 @@ using eBiblioteka.Modeli.SearchObjects;
 using eBiblioteka.Servisi.Database;
 using eBiblioteka.Servisi.Interfaces;
 using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,13 @@ namespace eBiblioteka.Servisi.Services
     {
         public TipClanarineServis(Db180105Context context, IMapper mapper) : base(context, mapper)
         {
+        }
+
+        public override async Task<TipClanarine> AddIncludeId(IQueryable<TipClanarine> query, int id)
+        {
+            var entity = await query.FirstOrDefaultAsync(x => x.TipClanarineId == id);
+
+            return entity;
         }
     }
 }
