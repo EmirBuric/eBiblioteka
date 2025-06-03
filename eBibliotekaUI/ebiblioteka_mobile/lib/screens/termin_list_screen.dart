@@ -1,5 +1,4 @@
 import 'package:ebiblioteka_mobile/layouts/master_screen.dart';
-import 'package:ebiblioteka_mobile/models/citaonica.dart';
 import 'package:ebiblioteka_mobile/models/termin.dart';
 import 'package:ebiblioteka_mobile/providers/auth_provider.dart';
 import 'package:ebiblioteka_mobile/providers/citaonica_provider.dart';

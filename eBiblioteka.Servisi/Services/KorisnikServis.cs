@@ -73,11 +73,17 @@ namespace eBiblioteka.Servisi.Services
         }
         public override async Task BeforeInsert(KorisnikInsertRequest insert, Korisnik entity, CancellationToken cancellationToken = default)
         {
+
             _logger.LogInformation($"Adding user: {entity.KorisnickoIme}");
+
+           if(Context.Korisniks.Any(x=>x.KorisnickoIme==insert.KorisnickoIme))
+           {
+                throw new UserException("Korisničko ime već postoji");
+           }
 
             if (insert.Lozinka != insert.LozinkaPotvrda)
             {
-                throw new UserException("Lozinka i LozinkaPotvrda moraju biti iste");
+                throw new UserException("Lozinka i potvrda lozinke moraju biti iste");
             }
 
             entity.LozinkaSalt = GenerateSalt();

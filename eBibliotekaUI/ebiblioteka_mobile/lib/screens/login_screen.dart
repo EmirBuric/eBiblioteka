@@ -1,6 +1,7 @@
 import 'package:ebiblioteka_mobile/providers/auth_provider.dart';
 import 'package:ebiblioteka_mobile/providers/korisnik_provider.dart';
 import 'package:ebiblioteka_mobile/screens/pocetna_screen.dart';
+import 'package:ebiblioteka_mobile/screens/registracija_screen.dart';
 import 'package:flutter/material.dart';
 //import 'package:form_field_validator/form_field_validator.dart';
 
@@ -141,6 +142,7 @@ class Login extends StatelessWidget {
                           padding: const EdgeInsets.all(12.0),
                           child: TextFormField(
                             controller: _passwordController,
+                            obscureText: true,
                             /*validator: MultiValidator([
                               RequiredValidator(
 
@@ -215,6 +217,28 @@ class Login extends StatelessWidget {
 
                             // Button height.
                             height: 50,
+                          ),
+                        ),
+
+                        // Link za registraciju
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 28.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text('Nemate račun?'),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const RegistracijaScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Text('Registrujte se'),
+                              ),
+                            ],
                           ),
                         ),
                       ]),

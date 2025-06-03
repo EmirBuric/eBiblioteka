@@ -16,7 +16,6 @@ namespace eBiblioteka.API.BackgroundServisi
             var terminService = scope.ServiceProvider.GetRequiredService<ITerminServis>();
             while (!stoppingToken.IsCancellationRequested)
             {
-                Console.WriteLine("Provjera da li ima zavrsenih termina");
                 await terminService.ProvjeriJeLiProsao();
                 await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
             }
