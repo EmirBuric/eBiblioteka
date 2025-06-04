@@ -1,7 +1,10 @@
 import 'package:ebiblioteka_mobile/layouts/master_screen.dart';
 import 'package:ebiblioteka_mobile/models/knjiga.dart';
+import 'package:ebiblioteka_mobile/models/korisnik_izabrana_knjiga.dart';
 import 'package:ebiblioteka_mobile/models/recenzija.dart';
 import 'package:ebiblioteka_mobile/providers/auth_provider.dart';
+import 'package:ebiblioteka_mobile/providers/knjiga_provider.dart';
+import 'package:ebiblioteka_mobile/providers/korisnik_izabrana_knjiga_provider.dart';
 import 'package:ebiblioteka_mobile/providers/recenzija_provider.dart';
 import 'package:ebiblioteka_mobile/providers/utils.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +21,9 @@ class RezervacijaScreen extends StatefulWidget {
 
 class _RezervacijaScreenState extends State<RezervacijaScreen> {
   final RecenzijaProvider _recenzijaProvider = RecenzijaProvider();
+  final KnjigaProvider _knjigaProvider = KnjigaProvider();
+  final KorisnikIzabranaKnjigaProvider _korisnikIzabranaKnjigaProvider =
+      KorisnikIzabranaKnjigaProvider();
   List<Recenzija> _recenzije = [];
   bool _isLoading = true;
   bool _isLoadingMore = false;
@@ -29,7 +35,13 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
   // Kalendar
   bool _showCalendar = false;
   DateTime _currentMonth = DateTime.now();
-  DateTime? _selectedDay;
+  DateTime? _selectedDayFrom;
+  DateTime? _selectedDayTo;
+  Map<DateTime, bool>? _dostupnostMapa;
+  bool _isLoadingDostupnost = false;
+  final DateTime _datumOd = DateTime.now();
+  final DateTime _datumDo = DateTime.now().add(const Duration(days: 30));
+  bool _isProcessingRezervacija = false;
 
   @override
   void initState() {
@@ -56,7 +68,6 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
 
   Future<void> _loadRecenzije() async {
     try {
-      // Učitavanje recenzija za knjigu
       var filter = {
         'KnjigaId': widget.knjiga.knjigaId,
         'Odobrena': true,
@@ -95,6 +106,150 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
     await _loadRecenzije();
   }
 
+  Future<void> _loadDostupnost() async {
+    if (widget.knjiga.knjigaId == null) return;
+
+    setState(() {
+      _isLoadingDostupnost = true;
+    });
+
+    try {
+      final dostupnostKnjige = await _knjigaProvider.getDostupnostZaPeriod(
+          widget.knjiga.knjigaId!, _datumOd, _datumDo);
+
+      setState(() {
+        _dostupnostMapa = dostupnostKnjige.dostupnost;
+        _isLoadingDostupnost = false;
+      });
+    } catch (e) {
+      print('Greška prilikom učitavanja dostupnosti: $e');
+      setState(() {
+        _isLoadingDostupnost = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Greška prilikom učitavanja dostupnosti: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  bool _isKnjigaDostupnaUPeriodu() {
+    if (_dostupnostMapa == null || _selectedDayFrom == null) return false;
+
+    if (_selectedDayTo == null) {
+      final formattedDate = DateTime(_selectedDayFrom!.year,
+          _selectedDayFrom!.month, _selectedDayFrom!.day);
+      return _dostupnostMapa![formattedDate] ?? true;
+    }
+
+    DateTime currentDate = DateTime(
+        _selectedDayFrom!.year, _selectedDayFrom!.month, _selectedDayFrom!.day);
+    final endDate = DateTime(
+        _selectedDayTo!.year, _selectedDayTo!.month, _selectedDayTo!.day);
+
+    while (currentDate.isBefore(endDate) ||
+        currentDate.isAtSameMomentAs(endDate)) {
+      final formattedDate =
+          DateTime(currentDate.year, currentDate.month, currentDate.day);
+      final isDostupna = _dostupnostMapa![formattedDate] ?? true;
+
+      if (!isDostupna) {
+        return false;
+      }
+
+      currentDate = currentDate.add(const Duration(days: 1));
+    }
+
+    return true;
+  }
+
+  Future<void> _dodajUListuRezervacija() async {
+    if (widget.knjiga.knjigaId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Greška: Knjiga nema ID'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (AuthProvider.trenutniKorisnikId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Morate biti prijavljeni da biste rezervisali knjigu'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (_selectedDayFrom == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Molimo odaberite barem datum od'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (!_isKnjigaDostupnaUPeriodu()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              'Knjiga nije dostupna u odabranom periodu. Molimo odaberite drugi period.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isProcessingRezervacija = true;
+    });
+
+    try {
+      final rezervacija = KorisnikIzabranaKnjiga(
+        korisnikId: AuthProvider.trenutniKorisnikId,
+        knjigaId: widget.knjiga.knjigaId,
+        datumRezervacije: _selectedDayFrom,
+        datumVracanja: _selectedDayTo,
+      );
+
+      await _korisnikIzabranaKnjigaProvider.insert(rezervacija);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_selectedDayTo != null
+              ? 'Knjiga dodana u listu rezervacija za period od ${formatDateToLocal(_selectedDayFrom!)} do ${formatDateToLocal(_selectedDayTo!)}'
+              : 'Knjiga dodana u listu rezervacija za datum ${formatDateToLocal(_selectedDayFrom!)} do ${formatDateToLocal(_selectedDayTo!.add(const Duration(days: 7)))}'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      setState(() {
+        _showCalendar = false;
+        _isProcessingRezervacija = false;
+      });
+    } catch (e) {
+      print('Greška prilikom rezervacije knjige: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Greška prilikom rezervacije knjige: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+      setState(() {
+        _isProcessingRezervacija = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MasterScreen(
@@ -107,26 +262,24 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
         ),
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
-            : Stack(
-                children: [
-                  Column(
-                    children: [
-                      _buildKnjigaHeader(),
-                      if (_showCalendar)
-                        _buildCalendarSection()
-                      else
-                        _buildStatusBar(),
+            : SafeArea(
+                child: Column(
+                  children: [
+                    _buildKnjigaHeader(),
+                    if (_showCalendar)
                       Expanded(
-                        child:
-                            _showCalendar ? Container() : _buildRecenzijeList(),
+                        child: _buildCalendarSection(),
+                      )
+                    else
+                      Expanded(
+                        child: Column(
+                          children: [
+                            _buildStatusBar(),
+                            Expanded(child: _buildRecenzijeList()),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: Container(
+                    Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16.0, vertical: 8.0),
                       decoration: BoxDecoration(
@@ -143,11 +296,10 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                         width: double.infinity,
                         child: _showCalendar
                             ? ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _showCalendar = false;
-                                  });
-                                },
+                                onPressed: (_selectedDayFrom != null &&
+                                        !_isProcessingRezervacija)
+                                    ? _dodajUListuRezervacija
+                                    : null,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.purple,
                                   padding:
@@ -156,10 +308,19 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                                     borderRadius: BorderRadius.circular(30),
                                   ),
                                 ),
-                                child: const Text(
-                                  'Rezerviši knjigu',
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                                child: _isProcessingRezervacija
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Dodaj u listu za rezervaciju',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
                               )
                             : OutlinedButton(
                                 onPressed: () {
@@ -180,8 +341,8 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                               ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
       ),
     );
@@ -229,7 +390,12 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                 onPressed: widget.knjiga.dostupna == true
                     ? () {
                         setState(() {
-                          _showCalendar = true;
+                          _showCalendar = !_showCalendar;
+                          if (_showCalendar) {
+                            _selectedDayFrom = null;
+                            _selectedDayTo = null;
+                            _loadDostupnost();
+                          }
                         });
                       }
                     : null,
@@ -240,7 +406,7 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
-                child: const Text('Odaberi datum'),
+                child: Text(_showCalendar ? 'Recenzije' : 'Odaberi datum'),
               ),
             ],
           ),
@@ -256,49 +422,93 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
         DateTime(_currentMonth.year, _currentMonth.month, 1);
     final firstWeekdayOfMonth = firstDayOfMonth.weekday;
 
-    // Kreiranje liste dana u mjesecu
     List<Widget> dayWidgets = [];
 
-    // Dodavanje praznih polja za dane prije prvog dana mjeseca
     for (int i = 1; i < firstWeekdayOfMonth; i++) {
       dayWidgets.add(const SizedBox());
     }
 
-    // Dodavanje dana u mjesecu
     for (int day = 1; day <= daysInMonth; day++) {
       final date = DateTime(_currentMonth.year, _currentMonth.month, day);
-      final isSelected = _selectedDay != null &&
-          _selectedDay!.year == date.year &&
-          _selectedDay!.month == date.month &&
-          _selectedDay!.day == date.day;
 
-      // Određivanje boje dana - jednostavno zeleni za sve datume
+      final isSelectedFrom = _selectedDayFrom != null &&
+          _selectedDayFrom!.year == date.year &&
+          _selectedDayFrom!.month == date.month &&
+          _selectedDayFrom!.day == date.day;
+
+      final isSelectedTo = _selectedDayTo != null &&
+          _selectedDayTo!.year == date.year &&
+          _selectedDayTo!.month == date.month &&
+          _selectedDayTo!.day == date.day;
+
+      final isInRange = _selectedDayFrom != null &&
+          _selectedDayTo != null &&
+          date.isAfter(_selectedDayFrom!) &&
+          date.isBefore(_selectedDayTo!);
+
+      bool isDostupna = true;
+      if (_dostupnostMapa != null) {
+        final formattedDate = DateTime(date.year, date.month, date.day);
+        isDostupna = _dostupnostMapa![formattedDate] ?? true;
+      }
+
       final bool isToday = DateTime.now().year == date.year &&
           DateTime.now().month == date.month &&
           DateTime.now().day == date.day;
       final bool isPast =
           date.isBefore(DateTime.now().subtract(const Duration(days: 1)));
+      final bool isOutOfRange =
+          date.isBefore(_datumOd) || date.isAfter(_datumDo);
 
       Color dayColor;
-      if (isSelected) {
+      if (isSelectedFrom) {
         dayColor = Colors.purple;
+      } else if (isSelectedTo) {
+        dayColor = Colors.deepPurple;
+      } else if (isInRange) {
+        dayColor = Colors.purpleAccent;
       } else if (isToday) {
         dayColor = Colors.blue;
-      } else if (isPast) {
+      } else if (isPast || isOutOfRange || !isDostupna) {
         dayColor = Colors.grey;
-      } else {
+      } else if (isDostupna) {
         dayColor = Colors.green;
+      } else {
+        dayColor = Colors.red;
       }
 
       dayWidgets.add(
         GestureDetector(
-          onTap: !isPast
+          onTap: (isPast || isOutOfRange || !isDostupna)
               ? () {
-                  setState(() {
-                    _selectedDay = date;
-                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(isPast
+                          ? 'Ne možete odabrati datum koji je prošao'
+                          : isOutOfRange
+                              ? 'Možete odabrati datum samo između ${DateFormat('dd.MM.yyyy').format(_datumOd)} i ${DateFormat('dd.MM.yyyy').format(_datumDo)}'
+                              : 'Knjiga nije dostupna na odabrani datum'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
                 }
-              : null,
+              : () {
+                  setState(() {
+                    if (_selectedDayFrom == null) {
+                      _selectedDayFrom = date;
+                    } else if (_selectedDayTo == null) {
+                      if (date.isAfter(_selectedDayFrom!)) {
+                        _selectedDayTo = date;
+                      } else {
+                        _selectedDayTo = _selectedDayFrom;
+                        _selectedDayFrom = date;
+                      }
+                    } else {
+                      _selectedDayFrom = date;
+                      _selectedDayTo = null;
+                    }
+                  });
+                },
           child: Container(
             margin: const EdgeInsets.all(4),
             decoration: BoxDecoration(
@@ -364,75 +574,98 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            children: [
-              // Dani u sedmici
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: const [
-                  Text('Pon', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('Uto', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('Sri', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('Čet', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('Pet', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('Sub', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('Ned', style: TextStyle(fontWeight: FontWeight.bold)),
-                ],
-              ),
-              const SizedBox(height: 8),
-              // Kalendar
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 7,
-                mainAxisSpacing: 2,
-                crossAxisSpacing: 2,
-                children: dayWidgets,
-              ),
-              const SizedBox(height: 16),
-              // Legenda
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 16,
-                    height: 16,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.green,
+        _isLoadingDostupnost
+            ? const Expanded(child: Center(child: CircularProgressIndicator()))
+            : Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: const [
+                            Text('Pon',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text('Uto',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text('Sri',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text('Čet',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text('Pet',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text('Sub',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text('Ned',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        GridView.count(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          crossAxisCount: 7,
+                          mainAxisSpacing: 2,
+                          crossAxisSpacing: 2,
+                          childAspectRatio: 1.0,
+                          children: dayWidgets,
+                        ),
+                        const SizedBox(height: 16),
+                        if (_selectedDayFrom != null)
+                          Text(
+                            'Datum od: ${DateFormat('dd.MM.yyyy').format(_selectedDayFrom!)}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        if (_selectedDayTo != null)
+                          Text(
+                            'Datum do: ${DateFormat('dd.MM.yyyy').format(_selectedDayTo!)}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 16.0,
+                          runSpacing: 8.0,
+                          alignment: WrapAlignment.center,
+                          children: [
+                            _buildLegendItem(Colors.green, 'Dostupno'),
+                            _buildLegendItem(Colors.blue, 'Danas'),
+                            _buildLegendItem(Colors.purple, 'Datum od'),
+                            _buildLegendItem(Colors.deepPurple, 'Datum do'),
+                            _buildLegendItem(Colors.purpleAccent, 'Period'),
+                            _buildLegendItem(Colors.red, 'Nedostupno'),
+                            _buildLegendItem(Colors.grey, 'Nedostupan period'),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Odaberite datum od i datum do za rezervaciju',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                        const SizedBox(height: 100),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  const Text('Dostupno'),
-                  const SizedBox(width: 16),
-                  Container(
-                    width: 16,
-                    height: 16,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  const Text('Danas'),
-                  const SizedBox(width: 16),
-                  Container(
-                    width: 16,
-                    height: 16,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.purple,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  const Text('Odabrano'),
-                ],
+                ),
               ),
-            ],
+      ],
+    );
+  }
+
+  Widget _buildLegendItem(Color color, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color,
           ),
         ),
+        const SizedBox(width: 4),
+        Text(text, style: const TextStyle(fontSize: 12)),
       ],
     );
   }
@@ -513,8 +746,7 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
 
   Widget _buildRecenzijeList() {
     return Padding(
-      padding: const EdgeInsets.only(
-          bottom: 70.0), // Dodajemo padding na dnu za dugme
+      padding: const EdgeInsets.only(bottom: 70.0),
       child: SingleChildScrollView(
         controller: _scrollController,
         child: Padding(
@@ -635,7 +867,6 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
     int ocjena = 3;
     final opisController = TextEditingController();
 
-    // Provjera je li korisnik prijavljen
     if (AuthProvider.trenutniKorisnikId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -699,7 +930,6 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
             onPressed: () async {
               if (opisController.text.isNotEmpty) {
                 try {
-                  // Kreiranje nove recenzije
                   final recenzija = Recenzija(
                     knjigaId: widget.knjiga.knjigaId,
                     korisnikId: AuthProvider.trenutniKorisnikId,
@@ -710,7 +940,6 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                   await _recenzijaProvider.insert(recenzija);
                   Navigator.pop(context);
 
-                  // Obavijest korisniku
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
@@ -719,7 +948,6 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                     ),
                   );
 
-                  // Ponovno učitavanje recenzija
                   _loadRecenzije();
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(

@@ -210,5 +210,29 @@ namespace eBiblioteka.Servisi.Services
                 await Context.SaveChangesAsync();
             }
         }
+
+        public async Task<DostupnostKnjigeDTO> GetDostupnostZaPeriod(int knjigaId, DateTime datumOd, DateTime datumDo)
+        {
+            var knjiga = await Context.Knjigas
+            .Include(k => k.Rezervacijas.Where(r => r.Odobrena == true))
+            .FirstOrDefaultAsync(k => k.KnjigaId == knjigaId);
+
+            if (knjiga == null) return null;
+
+            var dostupnost = new DostupnostKnjigeDTO
+            {
+                KnjigaId = knjiga.KnjigaId
+            };
+
+            for (var datum = datumOd.Date; datum <= datumDo.Date; datum = datum.AddDays(1))
+            {
+                var rezervisanoNaDatum = knjiga.Rezervacijas
+                    .Count(r => r.DatumRezervacije <= datum && r.DatumVracanja >= datum);
+
+                dostupnost.Dostupnost[datum] = knjiga.Kolicina > rezervisanoNaDatum;
+            }
+
+            return dostupnost;
+        }
     }
 }

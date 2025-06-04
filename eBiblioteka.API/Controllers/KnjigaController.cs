@@ -29,5 +29,14 @@ namespace eBiblioteka.API.Controllers
         {
             await (_servis as IKnjigaServis).SelectPreporucenaKnjiga(ids);
         }
+
+        [HttpGet("Kalendar/{id}")]
+        public async Task<DostupnostKnjigeDTO> GetDostupnostZaPeriod(
+        int id,
+        [FromQuery] DateTime datumOd,
+        [FromQuery] DateTime datumDo)
+        {
+            return await (_servis as IKnjigaServis).GetDostupnostZaPeriod(id, datumOd, datumDo);
+        }
     }
 }
