@@ -5,6 +5,7 @@ using eBiblioteka.Servisi.Database;
 using eBiblioteka.Servisi.Interfaces;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,12 +44,16 @@ namespace eBiblioteka.Servisi.Services
 
             if (!string.IsNullOrEmpty(search.NazivGTE))
             {
-                query = query.Include(x=>x.Knjiga).Where(x => x.Knjiga.Naziv.ToLower().StartsWith(search.NazivGTE));
+                query = query.Include(x => x.Knjiga).Where(x => x.Knjiga.Naziv.ToLower().StartsWith(search.NazivGTE));
             }
 
             if (!string.IsNullOrEmpty(search.ImePrezimeGTE))
             {
-                query = query.Include(x=>x.Korisnik).Where(x => (x.Korisnik.Ime + " " + x.Korisnik.Prezime).ToLower().StartsWith(search.ImePrezimeGTE));
+                query = query.Include(x => x.Korisnik).Where(x => (x.Korisnik.Ime + " " + x.Korisnik.Prezime).ToLower().StartsWith(search.ImePrezimeGTE));
+            }
+            if (search.IsChecked != null)
+            {
+                query = query.Where(x => x.IsChecked == search.IsChecked);
             }
 
 
@@ -79,7 +84,7 @@ namespace eBiblioteka.Servisi.Services
         {
             query = query.Include("Korisnik");
             query = query.Include("Knjiga");
-            var entity= await query.FirstOrDefaultAsync(x=>x.KorisnikIzabranaKnjigaId == id);
+            var entity = await query.FirstOrDefaultAsync(x => x.KorisnikIzabranaKnjigaId == id);
             return entity;
         }
 
@@ -93,6 +98,33 @@ namespace eBiblioteka.Servisi.Services
             entity.IsChecked = true;
 
             return base.BeforeUpdate(update, entity, cancellationToken);
+        }
+
+        public async Task UpdateIsCheckedList(List<int> isCheckedIdsList)
+        {
+            if (!isCheckedIdsList.IsNullOrEmpty())
+            {
+                var knjige = await Context.KorisnikIzabranaKnjigas
+                    .Where(x => isCheckedIdsList.Contains(x.KorisnikIzabranaKnjigaId))
+                    .ToListAsync();
+
+                foreach (var knjiga in knjige)
+                {
+                    knjiga.IsChecked = false;
+                }
+                await Context.SaveChangesAsync();
+            }
+        }
+
+        public async Task UpdateIsChecked(int isCheckedId)
+        {
+            var knjiga= await Context.KorisnikIzabranaKnjigas.FirstOrDefaultAsync(x=>x.KorisnikIzabranaKnjigaId == isCheckedId);
+            
+            if (knjiga == null)
+                return;
+            
+            knjiga.IsChecked=false;
+            await Context.SaveChangesAsync();
         }
     }
 }

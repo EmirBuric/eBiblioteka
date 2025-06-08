@@ -196,7 +196,6 @@ public partial class Db180105Context : DbContext
             entity.Property(e => e.DatumRezervacije).HasColumnType("datetime");
             entity.Property(e => e.DatumVracanja).HasColumnType("datetime");
             entity.Property(e => e.Odobrena).HasDefaultValue(false);
-            entity.Property(e => e.Pregledana).HasDefaultValue(false);
 
             entity.HasOne(d => d.Knjiga).WithMany(p => p.Rezervacijas)
                 .HasForeignKey(d => d.KnjigaId)

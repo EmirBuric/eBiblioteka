@@ -17,8 +17,6 @@ namespace eBiblioteka.Modeli.SearchObjects
 
         public bool? Odobrena { get; set; }
 
-        public bool? Pregledana { get; set; }
-
         public string? NazivGTE { get; set; }
 
         public string? ImePrezimeGTE { get; set; }

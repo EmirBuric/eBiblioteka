@@ -17,9 +17,7 @@ namespace eBiblioteka.Modeli.DTOs
         public DateTime DatumRezervacije { get; set; }
 
         public DateTime DatumVracanja { get; set; }
-
-        public virtual KorisniciDTO? Korisnik { get; set; } 
-
+ 
         public virtual KnjigaDTO? Knjiga { get; set; } 
     }
 }

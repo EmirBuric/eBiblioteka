@@ -23,7 +23,7 @@ namespace eBiblioteka.Servisi.Services
         }
         private async Task Initialize()
         {
-            var factory = new ConnectionFactory
+            /*var factory = new ConnectionFactory
             {
                 HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
                 Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
@@ -38,7 +38,7 @@ namespace eBiblioteka.Servisi.Services
                                  durable: false,
                                  exclusive: false,
                                  autoDelete: false,
-                                 arguments: null);
+                                 arguments: null);*/
         }
 
         public override IQueryable<Rezervacija> AddFilter(RezervacijaSearchObject search, IQueryable<Rezervacija> query)
@@ -92,13 +92,12 @@ namespace eBiblioteka.Servisi.Services
         public override async Task BeforeInsert(RezervacijaUpsertRequest insert, Rezervacija entity, CancellationToken cancellationToken = default)
         {
             entity.Odobrena=false;
-            entity.Pregledana=false;
 
             var korisnik= await Context.Korisniks.FirstOrDefaultAsync(x=>x.KorisnikId==entity.KorisnikId);
 
             var korisnikEmail = korisnik.Email;
 
-            if(!string.IsNullOrEmpty(korisnikEmail))
+            /*if(!string.IsNullOrEmpty(korisnikEmail))
             {
                 var message = $"Rezervacija odobrena za {korisnikEmail}";
                 var body= Encoding.UTF8.GetBytes(message);     
@@ -107,7 +106,7 @@ namespace eBiblioteka.Servisi.Services
                     routingKey: "reservationQueue",
                     mandatory: false,
                     body: body);
-            }
+            }*/
 
 
             if (insert.DatumVracanja == null)
@@ -121,7 +120,6 @@ namespace eBiblioteka.Servisi.Services
         public override Task BeforeUpdate(RezervacijaUpsertRequest update, Rezervacija entity, CancellationToken cancellationToken = default)
         {
             entity.Odobrena = false;
-            entity.Pregledana = false;
 
             if (update.DatumVracanja == null)
                 entity.DatumVracanja = update.DatumRezervacije.AddDays(7);

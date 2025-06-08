@@ -17,5 +17,7 @@ namespace eBiblioteka.Modeli.SearchObjects
         public string? NazivGTE { get; set; }
 
         public string? ImePrezimeGTE { get; set; }
+
+        public bool? IsChecked { get; set; }
     }
 }

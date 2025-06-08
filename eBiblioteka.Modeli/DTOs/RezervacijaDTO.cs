@@ -16,12 +16,8 @@ namespace eBiblioteka.Modeli.DTOs
 
         public DateTime DatumVracanja { get; set; }
 
-        public bool Odobrena { get; set; }
-
-        public bool Pregledana { get; set; }
+        public bool? Odobrena { get; set; }
 
         public KnjigaDTO? Knjiga { get; set; }
-
-        public KorisniciDTO? Korisnik { get; set; }
     }
 }

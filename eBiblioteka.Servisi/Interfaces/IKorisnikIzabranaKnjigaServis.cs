@@ -11,6 +11,7 @@ namespace eBiblioteka.Servisi.Interfaces
 {
     public interface IKorisnikIzabranaKnjigaServis:ICRUDServis<KorisnikIzabranaKnjigaDTO,KorisnikIzabranaKnjigaSearchObject, KorisnikIzabranaKnjigaUpsertRequest,KorisnikIzabranaKnjigaUpsertRequest>
     {
-        
+        public Task UpdateIsCheckedList(List<int> isCheckedIdsList);
+        public Task UpdateIsChecked(int isCheckedId);
     }
 }

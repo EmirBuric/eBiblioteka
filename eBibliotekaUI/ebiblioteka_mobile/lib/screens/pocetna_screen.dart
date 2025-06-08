@@ -4,11 +4,14 @@ import 'package:ebiblioteka_mobile/layouts/master_screen.dart';
 import 'package:ebiblioteka_mobile/models/autor.dart';
 import 'package:ebiblioteka_mobile/models/knjiga.dart';
 import 'package:ebiblioteka_mobile/models/zanr.dart';
+import 'package:ebiblioteka_mobile/providers/auth_provider.dart';
 import 'package:ebiblioteka_mobile/providers/knjiga_autor_provider.dart';
+import 'package:ebiblioteka_mobile/providers/korisnik_izabrana_knjiga_provider.dart';
 import 'package:ebiblioteka_mobile/screens/autor_details_screen.dart';
 import 'package:ebiblioteka_mobile/screens/autor_list_screen.dart';
 import 'package:ebiblioteka_mobile/screens/knjiga_details_screen.dart';
 import 'package:ebiblioteka_mobile/screens/knjige_list_screen.dart';
+import 'package:ebiblioteka_mobile/screens/rezervacija_list_screen.dart';
 import 'package:ebiblioteka_mobile/screens/zanr_details_screen.dart';
 import 'package:ebiblioteka_mobile/screens/zanr_list_screen.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +32,8 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
   final ZanrProvider _zanrProvider = ZanrProvider();
   final AutorProvider _autorProvider = AutorProvider();
   final KnjigaAutorProvider _knjigaAutorProvider = KnjigaAutorProvider();
+  final KorisnikIzabranaKnjigaProvider _korisnikIzabranaKnjigaProvider =
+      KorisnikIzabranaKnjigaProvider();
   List<Knjiga> knjige = [];
   List<Knjiga> knjigaDana = [];
   List<Knjiga> preporuceneKnjige = [];
@@ -36,6 +41,7 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
   Map<int, String> zanrNames = {};
   Map<int, List<String>> knjigeAutori = {};
   bool isLoading = true;
+  int brojRezervacija = 0;
 
   int currentPage = 1;
   int pageSize = 3;
@@ -44,6 +50,7 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
   void initState() {
     super.initState();
     _loadData();
+    _getBrojRezervacija();
   }
 
   Future<void> _loadData() async {
@@ -130,10 +137,28 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
     }
   }
 
+  Future<void> _getBrojRezervacija() async {
+    if (AuthProvider.trenutniKorisnikId == null) return;
+
+    try {
+      var data = await _korisnikIzabranaKnjigaProvider.get(filter: {
+        'KorisnikId': AuthProvider.trenutniKorisnikId.toString(),
+        'IsChecked': 'true'
+      });
+
+      setState(() {
+        brojRezervacija = data.count;
+        print(brojRezervacija);
+      });
+    } catch (e) {
+      print('Greška pri učitavanju broja rezervacija: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MasterScreen(
-      selectedIndex: 0, // Pocetna is always index 0
+      selectedIndex: 0,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('eBiblioteka'),
@@ -142,9 +167,48 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
               icon: const Icon(Icons.search),
               onPressed: () {},
             ),
-            IconButton(
-              icon: const Icon(Icons.notifications_none),
-              onPressed: () {},
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.shopping_cart),
+                  tooltip: 'Moje rezervacije',
+                  onPressed: () {
+                    Navigator.of(context)
+                        .push(
+                      MaterialPageRoute(
+                          builder: (context) => const RezervacijaListScreen()),
+                    )
+                        .then((_) {
+                      _getBrojRezervacija();
+                    });
+                  },
+                ),
+                if (brojRezervacija > 0)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        brojRezervacija.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ],
         ),

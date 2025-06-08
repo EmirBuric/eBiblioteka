@@ -7,6 +7,7 @@ import 'package:ebiblioteka_mobile/providers/knjiga_provider.dart';
 import 'package:ebiblioteka_mobile/providers/korisnik_izabrana_knjiga_provider.dart';
 import 'package:ebiblioteka_mobile/providers/recenzija_provider.dart';
 import 'package:ebiblioteka_mobile/providers/utils.dart';
+import 'package:ebiblioteka_mobile/screens/rezervacija_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -32,7 +33,6 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
   int pageSize = 4;
   final ScrollController _scrollController = ScrollController();
 
-  // Kalendar
   bool _showCalendar = false;
   DateTime _currentMonth = DateTime.now();
   DateTime? _selectedDayFrom;
@@ -235,6 +235,10 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
         _showCalendar = false;
         _isProcessingRezervacija = false;
       });
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const RezervacijaListScreen()),
+      );
     } catch (e) {
       print('Greška prilikom rezervacije knjige: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -382,7 +386,6 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          // Dugmad
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
