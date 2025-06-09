@@ -43,14 +43,14 @@ namespace eBiblioteka.Servisi.Services
 
         public override IQueryable<Rezervacija> AddFilter(RezervacijaSearchObject search, IQueryable<Rezervacija> query)
         {
-            if (search.KorisnikId != null) 
+            if (search.KorisnikId != null)
             {
-                query= query.Where(x=>x.KorisnikId==search.KorisnikId);
+                query = query.Where(x => x.KorisnikId == search.KorisnikId);
             }
 
-            if (search.KnjigaId != null) 
+            if (search.KnjigaId != null)
             {
-                query=query.Where(x=>x.KnjigaId==search.KnjigaId);
+                query = query.Where(x => x.KnjigaId == search.KnjigaId);
             }
 
             if (search.DatumRezervacijeGTE != null)
@@ -75,8 +75,10 @@ namespace eBiblioteka.Servisi.Services
 
             if (search.Odobrena != null)
             {
-                query=query.Where(x=>x.Odobrena==search.Odobrena);
+                query = query.Where(x => x.Odobrena == search.Odobrena);
             }
+
+            query = query.OrderBy(x => x.Odobrena==null).ThenBy(x=>x.DatumRezervacije);
 
             return query;
         }
@@ -91,9 +93,8 @@ namespace eBiblioteka.Servisi.Services
 
         public override async Task BeforeInsert(RezervacijaUpsertRequest insert, Rezervacija entity, CancellationToken cancellationToken = default)
         {
-            entity.Odobrena=false;
 
-            var korisnik= await Context.Korisniks.FirstOrDefaultAsync(x=>x.KorisnikId==entity.KorisnikId);
+            var korisnik = await Context.Korisniks.FirstOrDefaultAsync(x => x.KorisnikId == entity.KorisnikId);
 
             var korisnikEmail = korisnik.Email;
 
@@ -119,7 +120,6 @@ namespace eBiblioteka.Servisi.Services
 
         public override Task BeforeUpdate(RezervacijaUpsertRequest update, Rezervacija entity, CancellationToken cancellationToken = default)
         {
-            entity.Odobrena = false;
 
             if (update.DatumVracanja == null)
                 entity.DatumVracanja = update.DatumRezervacije.AddDays(7);
@@ -139,5 +139,13 @@ namespace eBiblioteka.Servisi.Services
 
         }
 
+        public async Task PotvrdiRezervaciju(int id, bool potvrda)
+        {
+            var rezervacija = await Context.Rezervacijas.FirstOrDefaultAsync(x => x.RezervacijaId == id);
+
+            rezervacija.Odobrena = potvrda;
+
+            await Context.SaveChangesAsync();
+        }
     }
 }

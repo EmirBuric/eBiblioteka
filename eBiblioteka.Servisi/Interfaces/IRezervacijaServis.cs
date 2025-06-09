@@ -11,5 +11,6 @@ namespace eBiblioteka.Servisi.Interfaces
 {
     public interface IRezervacijaServis:ICRUDServis<RezervacijaDTO,RezervacijaSearchObject,RezervacijaUpsertRequest,RezervacijaUpsertRequest>
     {
+        public Task PotvrdiRezervaciju(int id, bool potvrda);
     }
 }

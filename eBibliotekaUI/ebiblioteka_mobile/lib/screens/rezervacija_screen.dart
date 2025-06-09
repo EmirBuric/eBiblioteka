@@ -140,9 +140,22 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
     if (_dostupnostMapa == null || _selectedDayFrom == null) return false;
 
     if (_selectedDayTo == null) {
-      final formattedDate = DateTime(_selectedDayFrom!.year,
+      DateTime currentDate = DateTime(_selectedDayFrom!.year,
           _selectedDayFrom!.month, _selectedDayFrom!.day);
-      return _dostupnostMapa![formattedDate] ?? true;
+      final endDate = currentDate.add(const Duration(days: 7));
+
+      while (currentDate.isBefore(endDate)) {
+        final formattedDate =
+            DateTime(currentDate.year, currentDate.month, currentDate.day);
+        final isDostupna = _dostupnostMapa![formattedDate] ?? true;
+
+        if (!isDostupna) {
+          return false;
+        }
+
+        currentDate = currentDate.add(const Duration(days: 1));
+      }
+      return true;
     }
 
     DateTime currentDate = DateTime(
@@ -226,7 +239,7 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
         SnackBar(
           content: Text(_selectedDayTo != null
               ? 'Knjiga dodana u listu rezervacija za period od ${formatDateToLocal(_selectedDayFrom!)} do ${formatDateToLocal(_selectedDayTo!)}'
-              : 'Knjiga dodana u listu rezervacija za datum ${formatDateToLocal(_selectedDayFrom!)} do ${formatDateToLocal(_selectedDayTo!.add(const Duration(days: 7)))}'),
+              : 'Knjiga dodana u listu rezervacija za datum ${formatDateToLocal(_selectedDayFrom!)} do ${formatDateToLocal(_selectedDayFrom!.add(const Duration(days: 7)))}'),
           backgroundColor: Colors.green,
         ),
       );
@@ -472,12 +485,14 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
         dayColor = Colors.purpleAccent;
       } else if (isToday) {
         dayColor = Colors.blue;
-      } else if (isPast || isOutOfRange || !isDostupna) {
+      } else if (isPast || isOutOfRange) {
         dayColor = Colors.grey;
       } else if (isDostupna) {
         dayColor = Colors.green;
-      } else {
+      } else if (!isDostupna) {
         dayColor = Colors.red;
+      } else {
+        dayColor = Colors.grey;
       }
 
       dayWidgets.add(

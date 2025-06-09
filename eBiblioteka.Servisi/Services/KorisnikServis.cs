@@ -123,6 +123,13 @@ namespace eBiblioteka.Servisi.Services
             entity.LozinkaHash = GenerateHash(entity.LozinkaSalt, update.Lozinka);
         }
 
+        public override async Task<Korisnik> AddIncludeId(IQueryable<Korisnik> query, int id)
+        {
+            var entity = await query.FirstOrDefaultAsync(x => x.KorisnikId == id);
+
+            return entity;
+        }
+
         public KorisniciDTO Login(string korisnickoIme, string sifra)
         {
             var entity = Context.Korisniks

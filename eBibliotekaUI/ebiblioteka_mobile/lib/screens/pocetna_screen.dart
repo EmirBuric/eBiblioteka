@@ -148,7 +148,6 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
 
       setState(() {
         brojRezervacija = data.count;
-        print(brojRezervacija);
       });
     } catch (e) {
       print('Greška pri učitavanju broja rezervacija: $e');

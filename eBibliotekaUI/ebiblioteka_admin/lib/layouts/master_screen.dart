@@ -4,6 +4,7 @@ import '../screens/knjige_list_screen.dart';
 import '../screens/autor_list_screen.dart';
 import '../screens/recenzija_list_screen.dart';
 import '../screens/pocetna_screen.dart';
+import '../screens/rezervacija_screen.dart';
 
 class MasterScreen extends StatefulWidget {
   final String title;
@@ -81,6 +82,11 @@ class _MasterScreenState extends State<MasterScreen> {
             TextButton(
               onPressed: () {
                 // Navigate to Rezervacije
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const RezervacijaScreen(),
+                  ),
+                );
               },
               child: const Text("Rezervacije",
                   style: TextStyle(color: Colors.white)),

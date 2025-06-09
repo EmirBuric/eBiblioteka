@@ -14,9 +14,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Login(),
-      routes: {
-        '/uplata-clanarine': (context) => const UplataClanarineScreen(),
-      },
     );
   }
 }
