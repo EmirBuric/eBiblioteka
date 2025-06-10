@@ -5,6 +5,7 @@ using eBiblioteka.Servisi.Database;
 using eBiblioteka.Servisi.Interfaces;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
@@ -23,12 +24,12 @@ namespace eBiblioteka.Servisi.Services
         }
         private async Task Initialize()
         {
-            /*var factory = new ConnectionFactory
+            var factory = new ConnectionFactory
             {
                 HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
                 Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
-                UserName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME"),
-                Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD"),
+                UserName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? "guest",
+                Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD")?? "guest",
                 VirtualHost = Environment.GetEnvironmentVariable("RABBITMQ_VIRTUALHOST") ?? "/"
             };
 
@@ -38,7 +39,7 @@ namespace eBiblioteka.Servisi.Services
                                  durable: false,
                                  exclusive: false,
                                  autoDelete: false,
-                                 arguments: null);*/
+                                 arguments: null);
         }
 
         public override IQueryable<Rezervacija> AddFilter(RezervacijaSearchObject search, IQueryable<Rezervacija> query)
@@ -92,24 +93,7 @@ namespace eBiblioteka.Servisi.Services
         }
 
         public override async Task BeforeInsert(RezervacijaUpsertRequest insert, Rezervacija entity, CancellationToken cancellationToken = default)
-        {
-
-            var korisnik = await Context.Korisniks.FirstOrDefaultAsync(x => x.KorisnikId == entity.KorisnikId);
-
-            var korisnikEmail = korisnik.Email;
-
-            /*if(!string.IsNullOrEmpty(korisnikEmail))
-            {
-                var message = $"Rezervacija odobrena za {korisnikEmail}";
-                var body= Encoding.UTF8.GetBytes(message);     
-
-                await _channel.BasicPublishAsync(exchange: "",
-                    routingKey: "reservationQueue",
-                    mandatory: false,
-                    body: body);
-            }*/
-
-
+        { 
             if (insert.DatumVracanja == null)
                 entity.DatumVracanja = insert.DatumRezervacije.AddDays(7);
             else
@@ -143,9 +127,45 @@ namespace eBiblioteka.Servisi.Services
         {
             var rezervacija = await Context.Rezervacijas.FirstOrDefaultAsync(x => x.RezervacijaId == id);
 
+            var korisnik = await Context.Korisniks.FirstOrDefaultAsync(x => x.KorisnikId == rezervacija.KorisnikId);
+
+
+
+            var knjiga = await Context.Knjigas.FirstOrDefaultAsync(x => x.KnjigaId == rezervacija.KnjigaId);
+
             rezervacija.Odobrena = potvrda;
 
             await Context.SaveChangesAsync();
+
+            if (!string.IsNullOrEmpty(korisnik?.Email))
+            {
+                var message = new RezervacijaPorukaDTO 
+                {
+                    KorisnikEmail=korisnik.Email,
+                    KorisnikIme=korisnik.Ime,
+                    KorisnikPrezime=korisnik.Prezime,
+                    NazivKnjige=knjiga.Naziv,
+                    DatumOd=rezervacija.DatumRezervacije,
+                    DatumDo=rezervacija.DatumVracanja,
+                    Odobrena=potvrda,
+                    TipPoruke= potvrda ? "ODOBRENA" : "OTKAZANA"
+                };
+                 await PosaljiPoruku(message);
+            }
+        }
+
+        public async Task PosaljiPoruku(RezervacijaPorukaDTO poruka)
+        {
+            var json= JsonConvert.SerializeObject(poruka);
+            var body= Encoding.UTF8.GetBytes(json);
+
+            await _channel.BasicPublishAsync(
+                exchange: "",
+                routingKey: "reservationQueue",
+                mandatory: false,
+                body: body
+                );
+            Console.WriteLine($"Poslano: {poruka.TipPoruke} za {poruka.KorisnikEmail}");
         }
     }
 }

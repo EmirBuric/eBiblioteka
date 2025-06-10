@@ -21,7 +21,7 @@ services:
     environment:
       - ConnectionStrings:eBiblioteka=Server=${DB_SERVER},1433;Database=${DB_NAME};User=${DB_USER};Password=${DB_PASSWORD}; TrustServerCertificate=True
       - ASPNETCORE_ENVIRONMENT=Development
-      - RABBITMQ_HOST=erestorante-rabbitmq
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - RABBITMQ_VIRTUALHOST=/
@@ -39,7 +39,7 @@ services:
 #rabbitMQ
   ebiblioteka-rabbitmq:
     image: rabbitmq:management
-    hostname: ebiblioteka-rabbitmq
+    hostname: ${RABBITMQ_HOST}
     restart: unless-stopped
     ports:
       - 5672:5672  
@@ -66,7 +66,7 @@ services:
       context: .
       dockerfile: SubscriberDockerfile
     environment:
-      - RABBITMQ_HOST=ebiblioteka-rabbitmq
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
       - RABBITMQ_VIRTUALHOST=/

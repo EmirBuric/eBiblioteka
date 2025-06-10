@@ -17,30 +17,33 @@ namespace eBiblioteka.Subscriber
             _configuration = configuration;
         }
 
-        public void PosaljiEmail(string primateljEmail, string poruka)
+        public async Task PosaljiEmail(string primateljEmail, string subject, string body)
         {
             var emailConfig = _configuration.GetSection("Email");
             var emailPoruka = new MimeMessage();
 
-            var odEmail = Environment.GetEnvironmentVariable("odEmail");
+            var odEmail = Environment.GetEnvironmentVariable("FromEmail");
 
-            emailPoruka.From.Add(new MailboxAddress("Rezervacija u biblioteci",odEmail));
+            emailPoruka.From.Add(new MailboxAddress("eBiblioteka",odEmail));
             emailPoruka.To.Add(new MailboxAddress("Korisnik",primateljEmail));
-            emailPoruka.Subject = "Rezervacija potvrđena";
+            emailPoruka.Subject = subject;
             emailPoruka.Body = new TextPart("plain")
             {
-                Text = poruka
+                Text = body
             };
+
+            Console.WriteLine(emailPoruka);
 
             using var klijent = new SmtpClient();
             try
             {
-                klijent.Connect(emailConfig["SmtpServer"], int.Parse(emailConfig["SmtpPort"]), false);
-                var smtpSifra= Environment.GetEnvironmentVariable("smtpSifra");
-                var smtpKorisnik = Environment.GetEnvironmentVariable("smtpKorisnik");
-                klijent.Authenticate(smtpKorisnik, smtpSifra);
+                await klijent.ConnectAsync(emailConfig["SmtpServer"], int.Parse(emailConfig["SmtpPort"]), false);
+                var smtpSifra= Environment.GetEnvironmentVariable("SmtpPass");
+                var smtpKorisnik = Environment.GetEnvironmentVariable("SmtpUser");
+                await klijent.AuthenticateAsync(smtpKorisnik, smtpSifra);
 
-                klijent.Send(emailPoruka);
+                await klijent.SendAsync(emailPoruka);
+                Console.WriteLine("Email uspjesno poslan");
             }
             catch(Exception ex)
             {

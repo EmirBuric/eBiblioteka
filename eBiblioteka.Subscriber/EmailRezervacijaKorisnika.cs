@@ -10,6 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Pqc.Crypto.Bike;
 using RabbitMQ.Client.Exceptions;
+using EasyNetQ;
+using Newtonsoft.Json;
+using eBiblioteka.Modeli.DTOs;
 
 namespace eBiblioteka.Subscriber
 {
@@ -33,8 +36,8 @@ namespace eBiblioteka.Subscriber
             {
                 HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
                 Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
-                UserName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME"),
-                Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD"),
+                UserName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? "guest",
+                Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest",
                 VirtualHost = Environment.GetEnvironmentVariable("RABBITMQ_VIRTUALHOST") ?? "/"
             };
             const int maxRetries = 5;
@@ -71,23 +74,81 @@ namespace eBiblioteka.Subscriber
 
             consumer.ReceivedAsync += async (model, ea) =>
             {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                Console.WriteLine("[X] Primljeno {0}", message);
-                var email = ExtractEmailFromMessage(message);
-                if (!string.IsNullOrEmpty(email))
+                try
                 {
-                    _emailServis.PosaljiEmail(email, "Vaša rezervacija je prihvaćena");
+                    var body = ea.Body.ToArray();
+                    var json = Encoding.UTF8.GetString(body);
+
+                    Console.WriteLine("[X] Primljeno {0}", json);
+
+                    var poruka= JsonConvert.DeserializeObject<RezervacijaPorukaDTO>(json);
+
+                    if (poruka != null && !string.IsNullOrEmpty(poruka.KorisnikEmail))
+                    {
+                        await ObradiPoruku(poruka);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Neispravan format poruke ili nema email");
+                    }
+
+                }
+                catch (Exception)
+                {
+
+                    throw;
                 }
             };
             await _channel.BasicConsumeAsync(queue: _configuration["RabbitMQ:QueueName"],
                 autoAck: true,
                 consumer: consumer);
         }
-        private string ExtractEmailFromMessage(string message)
+        private async Task ObradiPoruku(RezervacijaPorukaDTO poruka)
         {
-            var parts = message.Split(' ');
-            return parts.Length > 3 ? parts[3] : string.Empty;
+            string subject = "";
+            string body = "";
+
+            switch (poruka.TipPoruke) 
+            {
+                case "ODOBRENA":
+                    subject = "Rezervacija je odobrena";
+                    body = $@"
+                        Poštovani/a {poruka.KorisnikIme} {poruka.KorisnikPrezime}
+                        
+                        Vaša rezervacija je odobrena!
+                        
+                        Detalji rezervacije:
+                        - Knjiga: {poruka.NazivKnjige}
+                        - Period: {poruka.DatumOd:dd.MM.yyyy} - {poruka.DatumDo:dd.MM.yyyy}
+                        
+                        Knjiga Vas očekuje u biblioteci.
+                        
+                        Pozdrav,
+                        Vaša eBiblioteka
+                        ";
+                    break;
+                case "OTKAZANA":
+                    subject = "Rezervacija je otkazana";
+                    body = $@"
+                        Poštovani/a {poruka.KorisnikIme} {poruka.KorisnikPrezime}
+                        
+                        Žao nam je, li Vaša rezervacija je otkazana.
+                        
+                        Detalji rezervacije:
+                        - Knjiga: {poruka.NazivKnjige}
+                        - Period: {poruka.DatumOd:dd.MM.yyyy} - {poruka.DatumDo:dd.MM.yyyy}
+                        
+                        Molimo kontaktirajte nas za više informacija.
+                        
+                        Pozdrav,
+                        Vaša eBiblioteka
+                        ";
+                    break;
+            }
+            if (!string.IsNullOrEmpty(subject) && !string.IsNullOrEmpty(body)) 
+            {
+                await _emailServis.PosaljiEmail(poruka.KorisnikEmail,subject, body);
+            }
         }
     }
 }
