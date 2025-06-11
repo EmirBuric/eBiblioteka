@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using eBiblioteka.Servisi.Recommender;
 
 
 namespace eBiblioteka.Servisi.Services
@@ -25,14 +26,17 @@ namespace eBiblioteka.Servisi.Services
     {
         private readonly ILogger<KorisnikServis> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IRecommenderServis _recommenderServis;
 
         public KorisnikServis(Db180105Context context,
             IMapper mapper,
             ILogger<KorisnikServis> logger,
-            IHttpContextAccessor httpContextAccessor) : base(context, mapper)
+            IHttpContextAccessor httpContextAccessor,
+            IRecommenderServis recommenderServis) : base(context, mapper)
         {
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
+            _recommenderServis = recommenderServis;
         }
 
         public override IQueryable<Korisnik> AddFilter(KorisnikSearchObject search, IQueryable<Korisnik> query)
@@ -212,6 +216,12 @@ namespace eBiblioteka.Servisi.Services
                 .FirstOrDefaultAsync(x => x.KorisnickoIme == username);
 
             return korisnik?.KorisnikId;
+        }
+
+        public List<KnjigaDTO> Recommend(int id)
+        {
+            var knjige= _recommenderServis.PreporuciKnjige(id);
+            return knjige;
         }
     }
 }

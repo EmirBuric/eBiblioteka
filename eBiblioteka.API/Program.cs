@@ -3,6 +3,7 @@ using eBiblioteka.API.BackgroundServisi;
 using eBiblioteka.API.Filteri;
 using eBiblioteka.Servisi.Database;
 using eBiblioteka.Servisi.Interfaces;
+using eBiblioteka.Servisi.Recommender;
 using eBiblioteka.Servisi.Services;
 using Mapster;
 using Microsoft.AspNetCore.Authentication;
@@ -29,6 +30,8 @@ builder.Services.AddTransient<ITerminServis, TerminServis>();
 builder.Services.AddTransient<IClanarinaServis, ClanarinaSerivis>();
 builder.Services.AddHostedService<KreirajTerminServis>();
 builder.Services.AddHostedService<ProvjeriJeLiTerminProsaoServis>();
+
+builder.Services.AddScoped<IRecommenderServis,RecommenderServis>();
 
 builder.Services.AddHttpContextAccessor();
 

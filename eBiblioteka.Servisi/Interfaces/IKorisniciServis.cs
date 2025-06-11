@@ -15,5 +15,6 @@ namespace eBiblioteka.Servisi.Interfaces
         public Task Ban(int id);
         public Task<string?> GetTrenutnaUloga();
         public Task<int?> GetTrenutniId();
+        public List<KnjigaDTO> Recommend(int id);
     }
 }

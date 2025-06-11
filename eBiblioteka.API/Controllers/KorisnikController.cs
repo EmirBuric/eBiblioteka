@@ -43,5 +43,11 @@ namespace eBiblioteka.API.Controllers
         {
             return await (_servis as IKorisniciServis).GetTrenutniId();
         }
+
+        [HttpGet("PreporuceneKnjige/{id}")]
+        public List<KnjigaDTO> Recommend(int id)
+        {
+            return (_servis as IKorisniciServis).Recommend(id);
+        }
     }
 }

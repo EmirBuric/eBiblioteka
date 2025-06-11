@@ -7,6 +7,7 @@ import 'package:ebiblioteka_mobile/models/zanr.dart';
 import 'package:ebiblioteka_mobile/providers/auth_provider.dart';
 import 'package:ebiblioteka_mobile/providers/knjiga_autor_provider.dart';
 import 'package:ebiblioteka_mobile/providers/korisnik_izabrana_knjiga_provider.dart';
+import 'package:ebiblioteka_mobile/providers/korisnik_provider.dart';
 import 'package:ebiblioteka_mobile/screens/autor_details_screen.dart';
 import 'package:ebiblioteka_mobile/screens/autor_list_screen.dart';
 import 'package:ebiblioteka_mobile/screens/knjiga_details_screen.dart';
@@ -34,9 +35,11 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
   final KnjigaAutorProvider _knjigaAutorProvider = KnjigaAutorProvider();
   final KorisnikIzabranaKnjigaProvider _korisnikIzabranaKnjigaProvider =
       KorisnikIzabranaKnjigaProvider();
+  final KorisnikProvider _korisnikProvider = KorisnikProvider();
   List<Knjiga> knjige = [];
   List<Knjiga> knjigaDana = [];
   List<Knjiga> preporuceneKnjige = [];
+  List<Knjiga> zaVasKnjige = [];
   List<Autor> autori = [];
   Map<int, String> zanrNames = {};
   Map<int, List<String>> knjigeAutori = {};
@@ -51,6 +54,7 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
     super.initState();
     _loadData();
     _getBrojRezervacija();
+    _loadZaVasPreporuke();
   }
 
   Future<void> _loadData() async {
@@ -151,6 +155,20 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
       });
     } catch (e) {
       print('Greška pri učitavanju broja rezervacija: $e');
+    }
+  }
+
+  Future<void> _loadZaVasPreporuke() async {
+    if (AuthProvider.trenutniKorisnikId == null) return;
+
+    try {
+      final preporuke = await _korisnikProvider.getPreporuke();
+
+      setState(() {
+        zaVasKnjige = preporuke;
+      });
+    } catch (e) {
+      print('Greška pri učitavanju personaliziranih preporuka: $e');
     }
   }
 
@@ -665,6 +683,103 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                                 ),
                               ),
                             ),
+                      if (AuthProvider.trenutniKorisnikId != null) ...[
+                        const SizedBox(height: 24),
+                        const Text(
+                          'Za Vas',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        zaVasKnjige.isNotEmpty
+                            ? SizedBox(
+                                height: 220,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: zaVasKnjige.length,
+                                  itemBuilder: (context, index) {
+                                    final knjiga = zaVasKnjige[index];
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                KnjigaDetailsScreen(
+                                              knjiga: knjiga,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        width: 150,
+                                        margin:
+                                            const EdgeInsets.only(right: 16),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              height: 150,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                color: Colors.grey[200],
+                                              ),
+                                              child: knjiga.slika != null
+                                                  ? ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                      child: imageFromString(
+                                                          knjiga.slika!),
+                                                    )
+                                                  : const Center(
+                                                      child: Icon(Icons.book,
+                                                          size: 40),
+                                                    ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              knjiga.naziv ?? 'Naziv knjige',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              knjigeAutori[knjiga.knjigaId]
+                                                      ?.join(", ") ??
+                                                  "Nepoznat autor",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600],
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              )
+                            : const Card(
+                                child: Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Center(
+                                    child: Text(
+                                      'Trenutno nema personaliziranih preporuka',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                      ],
                     ],
                   ),
                 ),
