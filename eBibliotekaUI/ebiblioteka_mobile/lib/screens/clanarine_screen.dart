@@ -4,6 +4,7 @@ import 'package:ebiblioteka_mobile/models/tip_clanarine.dart';
 import 'package:ebiblioteka_mobile/providers/auth_provider.dart';
 import 'package:ebiblioteka_mobile/providers/clanarina_provider.dart';
 import 'package:ebiblioteka_mobile/providers/tip_clanarine_provider.dart';
+import 'package:ebiblioteka_mobile/screens/pay_pal_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ebiblioteka_mobile/providers/utils.dart';
 
@@ -69,6 +70,19 @@ class _ClanarineScreenState extends State<ClanarineScreen> {
     }
   }
 
+  Future<void> _navigateToPayPalScreen(int tipClanarineId) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PayPalScreen(tipClanarineId: tipClanarineId),
+      ),
+    );
+
+    if (result == true) {
+      _loadData();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MasterScreen(
@@ -87,7 +101,6 @@ class _ClanarineScreenState extends State<ClanarineScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Prikaz statusa članarine
                       Card(
                         elevation: 4,
                         shape: RoundedRectangleBorder(
@@ -132,8 +145,6 @@ class _ClanarineScreenState extends State<ClanarineScreen> {
                           ),
                         ),
                       ),
-
-                      // Lista opcija za produženje
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -188,9 +199,8 @@ class _ClanarineScreenState extends State<ClanarineScreen> {
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.arrow_forward),
-                                    onPressed: () =>
-                                        //TODO: Implement paypal uplata
-                                        {},
+                                    onPressed: () => _navigateToPayPalScreen(
+                                        tipClanarine.tipClanarineId!),
                                   ),
                                 ],
                               ),
@@ -206,4 +216,3 @@ class _ClanarineScreenState extends State<ClanarineScreen> {
     );
   }
 }
-
