@@ -21,92 +21,60 @@ class _MasterScreenState extends State<MasterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // AppBar with inline navigation items
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 101, 85, 143),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => PocetnaScreen()),
-                );
-              },
-              child: const Text(
-                "eBiblioteka",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            _buildNavButton(
+                "eBiblioteka", PocetnaScreen(), widget.title == "Početna",
+                isLogo: true),
             const SizedBox(width: 30),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => KnjigeListScreen()));
-              },
-              child:
-                  const Text("Knjige", style: TextStyle(color: Colors.white)),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => AutorListScreen()));
-              },
-              child:
-                  const Text("Autori", style: TextStyle(color: Colors.white)),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const RecenzijaListScreen(),
-                  ),
-                );
-              },
-              child: const Text("Recenzije",
-                  style: TextStyle(color: Colors.white)),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const KorisniciListScreen(),
-                  ),
-                );
-              },
-              child: const Text("Korisnici",
-                  style: TextStyle(color: Colors.white)),
-            ),
-            TextButton(
-              onPressed: () {
-                // Navigate to Rezervacije
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const RezervacijaScreen(),
-                  ),
-                );
-              },
-              child: const Text("Rezervacije",
-                  style: TextStyle(color: Colors.white)),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const IzvjestajScreen(),
-                  ),
-                );
-              },
-              child: const Text("Izvještaj",
-                  style: TextStyle(color: Colors.white)),
-            ),
+            _buildNavButton(
+                "Knjige", KnjigeListScreen(), widget.title == "Knjige"),
+            _buildNavButton(
+                "Autori", AutorListScreen(), widget.title == "Autori"),
+            _buildNavButton("Recenzije", const RecenzijaListScreen(),
+                widget.title == "Recenzije"),
+            _buildNavButton("Korisnici", const KorisniciListScreen(),
+                widget.title == "Korisnici"),
+            _buildNavButton("Rezervacije", const RezervacijaScreen(),
+                widget.title == "Rezervacije"),
+            _buildNavButton("Izvještaj", const IzvjestajScreen(),
+                widget.title == "Izvještaj"),
           ],
         ),
       ),
       body: widget.child,
+    );
+  }
+
+  Widget _buildNavButton(String title, Widget destination, bool isActive,
+      {bool isLogo = false}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        color: isActive ? Colors.black.withOpacity(0.3) : Colors.transparent,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: TextButton(
+        onPressed: () {
+          if (!isActive) {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => destination),
+            );
+          }
+        },
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          foregroundColor: Colors.white,
+          textStyle: TextStyle(
+            fontWeight:
+                isLogo || isActive ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+        child: Text(title),
+      ),
     );
   }
 }
