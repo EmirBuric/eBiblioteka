@@ -31,6 +31,7 @@ builder.Services.AddTransient<ITerminServis, TerminServis>();
 builder.Services.AddTransient<IClanarinaServis, ClanarinaSerivis>();
 builder.Services.AddHostedService<KreirajTerminServis>();
 builder.Services.AddHostedService<ProvjeriJeLiTerminProsaoServis>();
+builder.Services.AddHostedService<ProvjeriStatusClanarineServis>();
 
 builder.Services.AddScoped<IRecommenderServis,RecommenderServis>();
 builder.Services.AddScoped<IIzvejstajServis,IzvjestajServis>();

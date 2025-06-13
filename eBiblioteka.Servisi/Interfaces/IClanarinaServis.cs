@@ -12,5 +12,7 @@ namespace eBiblioteka.Servisi.Interfaces
     public interface IClanarinaServis:ICRUDServis<ClanarinaDTO,ClanarinaSearchObject,ClanarinaUpsertRequest,ClanarinaUpsertRequest>
     {
         public Task<ClanarinaDTO> GetClanarinaByKorisnikId(int korisnikId);
+
+        public Task ProvjeriValidnostClanarine();
     }
 }

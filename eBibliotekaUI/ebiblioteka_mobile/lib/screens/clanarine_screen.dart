@@ -71,6 +71,43 @@ class _ClanarineScreenState extends State<ClanarineScreen> {
   }
 
   Future<void> _navigateToPayPalScreen(int tipClanarineId) async {
+    final odabraniTipClanarine = tipoviClanarine
+        .firstWhere((tip) => tip.tipClanarineId == tipClanarineId);
+
+    final preostaloTrajanje = _izracunajPreostaloTrajanje();
+
+    if (clanarina == null || clanarina!.datumIsteka == null) {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PayPalScreen(tipClanarineId: tipClanarineId),
+        ),
+      );
+
+      if (result == true) {
+        _loadData();
+      }
+      return;
+    }
+
+    if (odabraniTipClanarine.vrijemeTrajanja! <= preostaloTrajanje) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Upozorenje"),
+          content: Text(
+              "Vaša trenutna članarina traje još $preostaloTrajanje mjeseci, što je duže od trajanja odabranog tipa članarine (${odabraniTipClanarine.vrijemeTrajanja} mjeseci). Molimo odaberite duži period članarine."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -81,6 +118,25 @@ class _ClanarineScreenState extends State<ClanarineScreen> {
     if (result == true) {
       _loadData();
     }
+  }
+
+  int _izracunajPreostaloTrajanje() {
+    if (clanarina == null || clanarina!.datumIsteka == null) {
+      return 0;
+    }
+
+    final danas = DateTime.now();
+    final datumIsteka = clanarina!.datumIsteka!;
+
+    if (datumIsteka.isBefore(danas)) {
+      return 0;
+    }
+
+    final int razlikaUDanima = datumIsteka.difference(danas).inDays;
+
+    final int mjeseci = (razlikaUDanima / 30).ceil() - 1;
+
+    return mjeseci;
   }
 
   @override
@@ -123,7 +179,10 @@ class _ClanarineScreenState extends State<ClanarineScreen> {
                                     ),
                                   ),
                                   Text(
-                                    formatDateToLocal(clanarina!.datumIsteka!),
+                                    clanarina?.datumIsteka != null
+                                        ? formatDateToLocal(
+                                            clanarina!.datumIsteka!)
+                                        : "Niste uplatili članarinu",
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,

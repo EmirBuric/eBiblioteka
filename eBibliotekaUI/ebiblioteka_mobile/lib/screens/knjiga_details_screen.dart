@@ -113,12 +113,6 @@ class _KnjigaDetailsScreenState extends State<KnjigaDetailsScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Knjiga'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.share),
-              onPressed: () {},
-            ),
-          ],
         ),
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
