@@ -3,6 +3,7 @@ using eBiblioteka.API.BackgroundServisi;
 using eBiblioteka.API.Filteri;
 using eBiblioteka.Servisi.Database;
 using eBiblioteka.Servisi.Interfaces;
+using eBiblioteka.Servisi.Izvjestaji;
 using eBiblioteka.Servisi.Recommender;
 using eBiblioteka.Servisi.Services;
 using Mapster;
@@ -32,6 +33,7 @@ builder.Services.AddHostedService<KreirajTerminServis>();
 builder.Services.AddHostedService<ProvjeriJeLiTerminProsaoServis>();
 
 builder.Services.AddScoped<IRecommenderServis,RecommenderServis>();
+builder.Services.AddScoped<IIzvejstajServis,IzvjestajServis>();
 
 builder.Services.AddHttpContextAccessor();
 

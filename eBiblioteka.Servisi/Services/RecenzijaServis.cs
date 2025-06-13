@@ -70,7 +70,7 @@ namespace eBiblioteka.Servisi.Services
         {
             if (Context.Recenzijas.Any(x => x.KorisnikId == insert.KorisnikId && x.KnjigaId == insert.KnjigaId))
             {
-                throw new UserException("Vec ste ostavili rcenziju za ovu knjigu");
+                throw new UserException("Vec ste ostavili recenziju za ovu knjigu");
             }
             entity.Odobrena=null;
             entity.DatumRecenzije = DateTime.Now;

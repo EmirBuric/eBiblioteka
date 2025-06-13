@@ -38,5 +38,14 @@ namespace eBiblioteka.API.Controllers
         {
             return await (_servis as IKnjigaServis).GetDostupnostZaPeriod(id, datumOd, datumDo);
         }
+
+        [HttpGet("Izvjestaj/{id}")]
+        public async Task<KnjigaIzvjestajDTO> GetKnjigaIzvjestaj(
+        int id,
+        [FromQuery] DateTime datumOd,
+        [FromQuery] DateTime datumDo)
+        {
+            return await (_servis as IKnjigaServis).GetKnjigaIzvjestaj(id, datumOd, datumDo);
+        }
     }
 }

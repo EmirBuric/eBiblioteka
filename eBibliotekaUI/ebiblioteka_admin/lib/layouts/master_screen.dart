@@ -5,6 +5,7 @@ import '../screens/autor_list_screen.dart';
 import '../screens/recenzija_list_screen.dart';
 import '../screens/pocetna_screen.dart';
 import '../screens/rezervacija_screen.dart';
+import '../screens/izvjestaj_screen.dart';
 
 class MasterScreen extends StatefulWidget {
   final String title;
@@ -89,6 +90,17 @@ class _MasterScreenState extends State<MasterScreen> {
                 );
               },
               child: const Text("Rezervacije",
+                  style: TextStyle(color: Colors.white)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const IzvjestajScreen(),
+                  ),
+                );
+              },
+              child: const Text("Izvještaj",
                   style: TextStyle(color: Colors.white)),
             ),
           ],

@@ -5,6 +5,7 @@ using eBiblioteka.Modeli.SearchObjects;
 using eBiblioteka.Modeli.UpsertRequest;
 using eBiblioteka.Servisi.Database;
 using eBiblioteka.Servisi.Interfaces;
+using eBiblioteka.Servisi.Izvjestaji;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,8 +20,11 @@ namespace eBiblioteka.Servisi.Services
 {
     public class KnjigaServis : BaseCRUDServis<KnjigaDTO, KnjigaSearchObject, Knjiga, KnjigaInsertRequest, KnjigaUpdateRequest>, IKnjigaServis
     {
-        public KnjigaServis(Db180105Context context, IMapper mapper) : base(context, mapper)
+        private readonly IIzvejstajServis _izvejstajServis;
+
+        public KnjigaServis(Db180105Context context, IMapper mapper, IIzvejstajServis izvejstajServis) : base(context, mapper)
         {
+            _izvejstajServis = izvejstajServis;
         }
 
         public override IQueryable<Knjiga> AddFilter(KnjigaSearchObject search, IQueryable<Knjiga> query)
@@ -233,6 +237,13 @@ namespace eBiblioteka.Servisi.Services
             }
 
             return dostupnost;
+        }
+
+        public async Task<KnjigaIzvjestajDTO> GetKnjigaIzvjestaj(int knjigaId, DateTime datumOd, DateTime datumDo)
+        {
+            var statistika = await _izvejstajServis.GetKnjigaIzvjestaj(knjigaId, datumOd, datumDo);
+
+            return statistika;
         }
     }
 }

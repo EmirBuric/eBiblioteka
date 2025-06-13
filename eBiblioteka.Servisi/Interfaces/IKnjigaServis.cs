@@ -18,5 +18,7 @@ namespace eBiblioteka.Servisi.Interfaces
         public Task SelectPreporucenaKnjiga(List<int> ids);
 
         public Task<DostupnostKnjigeDTO> GetDostupnostZaPeriod(int knjigaId, DateTime datumOd, DateTime datumDo);
+
+        public Task<KnjigaIzvjestajDTO> GetKnjigaIzvjestaj(int knjigaId, DateTime datumOd, DateTime datumDo);
     }
 }
