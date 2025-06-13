@@ -25,13 +25,12 @@ class KnjigaProvider extends BaseProvider<Knjiga> {
     try {
       final response = await http.get(uri, headers: headers);
 
-      if (response.statusCode == 200) {
+      if (isValidResponse(response)) {
         final json = jsonDecode(response.body);
         return DostupnostKnjige.fromJson(json);
-      } else {
-        throw Exception(
-            'Greška prilikom dohvatanja dostupnosti: ${response.statusCode}');
       }
+
+      throw Exception('Greška prilikom dohvatanja dostupnosti knjige');
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');
     }

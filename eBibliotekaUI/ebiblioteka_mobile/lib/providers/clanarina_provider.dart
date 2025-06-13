@@ -21,15 +21,16 @@ class ClanarinaProvider extends BaseProvider<Clanarina> {
     try {
       final response = await http.get(uri, headers: headers);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 204) {
+        return null;
+      }
+
+      if (isValidResponse(response)) {
         final json = jsonDecode(response.body);
         return Clanarina.fromJson(json);
-      } else if (response.statusCode == 204) {
-        return null;
-      } else {
-        throw Exception(
-            'Greška prilikom dohvatanja članarine: ${response.statusCode}');
       }
+
+      throw Exception('Greška prilikom dohvatanja članarine');
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');
     }

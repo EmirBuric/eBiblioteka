@@ -19,9 +19,8 @@ class RecenzijaProvider extends BaseProvider<Recenzija> {
     try {
       final response = await http.post(uri, headers: headers);
 
-      if (response.statusCode != 200) {
-        throw Exception(
-            'Greška prilikom prihvatanja recenzije: ${response.statusCode}');
+      if (!isValidResponse(response)) {
+        throw Exception('Greška prilikom prihvatanja recenzije');
       }
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');
@@ -37,9 +36,8 @@ class RecenzijaProvider extends BaseProvider<Recenzija> {
     try {
       final response = await http.post(uri, headers: headers);
 
-      if (response.statusCode != 200) {
-        throw Exception(
-            'Greška prilikom odbijanja recenzije: ${response.statusCode}');
+      if (!isValidResponse(response)) {
+        throw Exception('Greška prilikom odbijanja recenzije');
       }
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');

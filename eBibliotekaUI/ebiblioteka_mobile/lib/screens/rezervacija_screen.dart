@@ -899,12 +899,18 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Nova recenzija'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Ocjena:'),
+              const Text(
+                'Kako ocjenjujete knjigu?',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               StatefulBuilder(
                 builder: (context, setState) => Row(
@@ -915,6 +921,7 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                       icon: Icon(
                         index < ocjena ? Icons.star : Icons.star_border,
                         color: Colors.amber,
+                        size: 28,
                       ),
                       onPressed: () {
                         setState(() {
@@ -926,14 +933,20 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text('Opis:'),
+              const Text(
+                'Podijelite svoje mišljenje',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               TextField(
                 controller: opisController,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Unesite vaše mišljenje o knjizi',
+                maxLines: 4,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  hintText: 'Napišite svoju recenziju...',
+                  contentPadding: const EdgeInsets.all(12),
                 ),
               ),
             ],
@@ -946,40 +959,54 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
-              if (opisController.text.isNotEmpty) {
-                try {
-                  final recenzija = Recenzija(
-                    knjigaId: widget.knjiga.knjigaId,
-                    korisnikId: AuthProvider.trenutniKorisnikId,
-                    opis: opisController.text,
-                    ocjena: ocjena,
-                  );
-
-                  await _recenzijaProvider.insert(recenzija);
-                  Navigator.pop(context);
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                          'Recenzija je uspješno poslana i čeka odobrenje'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-
-                  _loadRecenzije();
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Greška: $e')),
-                  );
-                }
-              } else {
+              if (opisController.text.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                      content: Text('Molimo unesite opis recenzije')),
+                    content: Text('Molimo unesite opis recenzije'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              try {
+                final recenzija = Recenzija(
+                  knjigaId: widget.knjiga.knjigaId,
+                  korisnikId: AuthProvider.trenutniKorisnikId,
+                  opis: opisController.text,
+                  ocjena: ocjena,
+                );
+
+                Navigator.pop(context);
+
+                await _recenzijaProvider.insert(recenzija);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content:
+                        Text('Recenzija je uspješno poslana i čeka odobrenje'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+
+                _loadRecenzije();
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(e.toString()),
+                    backgroundColor: Colors.red,
+                  ),
                 );
               }
             },
-            child: const Text('Dodaj'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.purple,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            child: const Text('Dodaj recenziju'),
           ),
         ],
       ),

@@ -118,6 +118,24 @@ abstract class BaseProvider<T> with ChangeNotifier {
       return true;
     } else if (response.statusCode == 401) {
       throw new Exception("Unauthorized");
+    } else if (response.statusCode == 400) {
+      try {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        if (jsonResponse.containsKey('errors') &&
+            jsonResponse['errors'] is Map<String, dynamic> &&
+            jsonResponse['errors'].containsKey('userError')) {
+          final userErrors = jsonResponse['errors']['userError'];
+          if (userErrors is List && userErrors.isNotEmpty) {
+            throw new Exception(userErrors.first);
+          }
+        }
+        throw new Exception("Greška u zahtjevu");
+      } catch (e) {
+        if (e is Exception) {
+          throw e;
+        }
+        throw new Exception("Greška u zahtjevu");
+      }
     } else {
       print(response.body);
       throw new Exception("Something bad happened please try again");

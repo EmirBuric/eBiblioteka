@@ -23,9 +23,8 @@ class KnjigaProvider extends BaseProvider<Knjiga> {
     try {
       final response = await http.post(uri, headers: headers);
 
-      if (response.statusCode != 200) {
-        throw Exception(
-            'Greška prilikom slanja knjige dana: ${response.statusCode}');
+      if (isValidResponse(response)) {
+        return;
       }
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');
@@ -40,9 +39,8 @@ class KnjigaProvider extends BaseProvider<Knjiga> {
     var jsonRequest = jsonEncode(ids);
     var response = await http.post(uri, headers: headers, body: jsonRequest);
 
-    if (response.statusCode != 200) {
-      new Exception(
-          'Greška prilikom slanja preporučenih knjiga: ${response.statusCode}');
+    if (!isValidResponse(response)) {
+      throw Exception('Greška prilikom slanja preporučenih knjiga');
     }
   }
 
@@ -57,12 +55,11 @@ class KnjigaProvider extends BaseProvider<Knjiga> {
     try {
       final response = await http.get(uri, headers: headers);
 
-      if (response.statusCode == 200) {
+      if (isValidResponse(response)) {
         final json = jsonDecode(response.body);
         return DostupnostKnjige.fromJson(json);
       } else {
-        throw Exception(
-            'Greška prilikom dohvatanja dostupnosti: ${response.statusCode}');
+        throw Exception('Greška prilikom dohvatanja dostupnosti');
       }
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');
@@ -80,12 +77,11 @@ class KnjigaProvider extends BaseProvider<Knjiga> {
     try {
       final response = await http.get(uri, headers: headers);
 
-      if (response.statusCode == 200) {
+      if (isValidResponse(response)) {
         final json = jsonDecode(response.body);
         return IzvjestajKnjiga.fromJson(json);
       } else {
-        throw Exception(
-            'Greška prilikom dohvatanja izvjestaja: ${response.statusCode}');
+        throw Exception('Greška prilikom dohvatanja izvještaja');
       }
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');

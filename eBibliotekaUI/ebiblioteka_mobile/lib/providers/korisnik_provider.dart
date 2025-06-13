@@ -23,11 +23,8 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
     try {
       final response = await http.get(uri, headers: headers);
 
-      if (response.statusCode == 200) {
+      if (isValidResponse(response)) {
         AuthProvider.uloga = response.body;
-      } else {
-        throw Exception(
-            'Greška prilikom dohvatanja uloge: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');
@@ -43,11 +40,8 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
     try {
       final response = await http.get(uri, headers: headers);
 
-      if (response.statusCode == 200) {
+      if (isValidResponse(response)) {
         AuthProvider.trenutniKorisnikId = int.parse(response.body);
-      } else {
-        throw Exception(
-            'Greška prilikom dohvatanja ID-a korisnika: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');

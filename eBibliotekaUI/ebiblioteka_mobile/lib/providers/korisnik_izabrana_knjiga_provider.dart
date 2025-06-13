@@ -21,9 +21,8 @@ class KorisnikIzabranaKnjigaProvider
     var jsonRequest = jsonEncode(ids);
     var response = await http.put(uri, headers: headers, body: jsonRequest);
 
-    if (response.statusCode != 200) {
-      new Exception(
-          'Greška prilikom slanja izabranih knjiga: ${response.statusCode}');
+    if (!isValidResponse(response)) {
+      throw new Exception('Greška prilikom slanja izabranih knjiga');
     }
   }
 
@@ -36,9 +35,8 @@ class KorisnikIzabranaKnjigaProvider
     try {
       final response = await http.put(uri, headers: headers);
 
-      if (response.statusCode != 200) {
-        throw Exception(
-            'Greška prilikom slanja izabrane knjige: ${response.statusCode}');
+      if (!isValidResponse(response)) {
+        throw Exception('Greška prilikom slanja izabrane knjige');
       }
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');

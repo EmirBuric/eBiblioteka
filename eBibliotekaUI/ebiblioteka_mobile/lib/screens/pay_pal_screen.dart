@@ -103,57 +103,93 @@ class _PayPalScreenState extends State<PayPalScreen> {
   }
 
   Future<String> _getAccessToken() async {
-    final response = await http.post(
-      Uri.parse('$_paypalBaseUrl/v1/oauth2/token'),
-      headers: {
-        'Authorization':
-            'Basic ${base64Encode(utf8.encode('$clientId:$clientSecret'))}',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: 'grant_type=client_credentials',
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$_paypalBaseUrl/v1/oauth2/token'),
+        headers: {
+          'Authorization':
+              'Basic ${base64Encode(utf8.encode('$clientId:$clientSecret'))}',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'grant_type=client_credentials',
+      );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['access_token'];
-    } else {
-      throw Exception('Neuspješno dobijanje PayPal pristupnog tokena');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['access_token'];
+      } else if (response.statusCode >= 400) {
+        Map<String, dynamic> errorResponse = {};
+        try {
+          errorResponse = jsonDecode(response.body);
+        } catch (_) {}
+
+        String errorMessage = errorResponse['error_description'] ??
+            errorResponse['message'] ??
+            'Neuspješno dobijanje PayPal pristupnog tokena';
+        throw Exception(errorMessage);
+      } else {
+        throw Exception('Neuspješno dobijanje PayPal pristupnog tokena');
+      }
+    } catch (e) {
+      if (e is Exception) {
+        throw e;
+      }
+      throw Exception('Problem pri komunikaciji s PayPal servisom: $e');
     }
   }
 
   Future<String> _createOrder(String accessToken, double total) async {
-    final response = await http.post(
-      Uri.parse('$_paypalBaseUrl/v2/checkout/orders'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-      body: jsonEncode({
-        'intent': 'CAPTURE',
-        'purchase_units': [
-          {
-            'amount': {
-              'currency_code': 'EUR',
-              'value': total.toString(),
+    try {
+      final response = await http.post(
+        Uri.parse('$_paypalBaseUrl/v2/checkout/orders'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({
+          'intent': 'CAPTURE',
+          'purchase_units': [
+            {
+              'amount': {
+                'currency_code': 'EUR',
+                'value': total.toString(),
+              },
+              'description':
+                  'Članarina eBiblioteka - ${tipClanarine!.vrijemeTrajanja} mjeseci',
             },
-            'description':
-                'Članarina eBiblioteka - ${tipClanarine!.vrijemeTrajanja} mjeseci',
-          },
-        ],
-        'application_context': {
-          'return_url': 'https://ebiblioteka.com/success',
-          'cancel_url': 'https://ebiblioteka.com/cancel',
-        }
-      }),
-    );
+          ],
+          'application_context': {
+            'return_url': 'https://ebiblioteka.com/success',
+            'cancel_url': 'https://ebiblioteka.com/cancel',
+          }
+        }),
+      );
 
-    if (response.statusCode == 201) {
-      final data = jsonDecode(response.body);
-      final approvalUrl =
-          data['links'].firstWhere((link) => link['rel'] == 'approve')['href'];
-      return approvalUrl;
-    } else {
-      throw Exception('Neuspješno kreiranje PayPal narudžbe');
+      if (response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        final approvalUrl = data['links']
+            .firstWhere((link) => link['rel'] == 'approve')['href'];
+        return approvalUrl;
+      } else if (response.statusCode >= 400) {
+        Map<String, dynamic> errorResponse = {};
+        try {
+          errorResponse = jsonDecode(response.body);
+        } catch (_) {}
+
+        String errorMessage = errorResponse['message'] ??
+            (errorResponse['details']?.isNotEmpty == true
+                ? errorResponse['details'][0]['description']
+                : null) ??
+            'Neuspješno kreiranje PayPal narudžbe';
+        throw Exception(errorMessage);
+      } else {
+        throw Exception('Neuspješno kreiranje PayPal narudžbe');
+      }
+    } catch (e) {
+      if (e is Exception) {
+        throw e;
+      }
+      throw Exception('Problem pri komunikaciji s PayPal servisom: $e');
     }
   }
 

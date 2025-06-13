@@ -26,9 +26,8 @@ class TerminProvider extends BaseProvider<Termin> {
         body: jsonEncode(body),
       );
 
-      if (response.statusCode != 200) {
-        throw Exception(
-            'Greška prilikom rezervacije termina: ${response.statusCode}');
+      if (!isValidResponse(response)) {
+        throw Exception('Greška prilikom rezervacije termina');
       }
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');
@@ -44,9 +43,8 @@ class TerminProvider extends BaseProvider<Termin> {
     try {
       final response = await http.put(uri, headers: headers);
 
-      if (response.statusCode != 200) {
-        throw Exception(
-            'Greška prilikom rezervacije termina: ${response.statusCode}');
+      if (!isValidResponse(response)) {
+        throw Exception('Greška prilikom otkazivanja termina');
       }
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');

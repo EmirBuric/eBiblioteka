@@ -20,9 +20,8 @@ class RezervacijaProvider extends BaseProvider<Rezervacija> {
     try {
       final response = await http.put(uri, headers: headers);
 
-      if (response.statusCode != 200) {
-        throw Exception(
-            'Greška prilikom potvrđivanja rezervacije: ${response.statusCode}');
+      if (!isValidResponse(response)) {
+        throw Exception('Greška prilikom potvrđivanja rezervacije');
       }
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');
