@@ -374,7 +374,7 @@ class _RecenzijaListScreenState extends State<RecenzijaListScreen> {
                                                   Text(recenzija.opis ?? ''),
                                                   const SizedBox(height: 8),
                                                   Text(
-                                                      'Datum: ${recenzija.datumRecenzije != null ? recenzija.datumRecenzije!.toLocal().toString().split(' ')[0] : '-'}'),
+                                                      'Datum: ${recenzija.datumRecenzije != null ? formatDateToLocal(recenzija.datumRecenzije!) : '-'}'),
                                                   const SizedBox(height: 8),
                                                   Text(
                                                       'Status: ${recenzija.odobrena == null ? 'Na čekanju' : (recenzija.odobrena! ? 'Odobrena' : 'Odbijena')}',
