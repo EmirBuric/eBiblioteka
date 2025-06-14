@@ -318,13 +318,31 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                 if (modalBooks.isNotEmpty)
                   ElevatedButton(
                     onPressed: () async {
-                      await _knjigaProvider.setPreporucenaKnjiga(selectedIds);
-                      var data = await _knjigaProvider
-                          .get(filter: {'Preporuceno': true});
-                      setState(() {
-                        preporuceneKnjige = data.result;
-                      });
-                      Navigator.of(context).pop();
+                      try {
+                        await _knjigaProvider.setPreporucenaKnjiga(selectedIds);
+                        var data = await _knjigaProvider
+                            .get(filter: {'Preporuceno': true});
+                        setState(() {
+                          preporuceneKnjige = data.result;
+                        });
+                        Navigator.of(context).pop();
+                      } catch (e) {
+                        Navigator.of(context).pop();
+                        await showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text("Greška"),
+                            content: Text(
+                                "Dogodila se greška prilikom postavljanja preporučenih knjiga: $e"),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text("OK"),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
                     },
                     child: const Text("Potvrdi"),
                   ),
