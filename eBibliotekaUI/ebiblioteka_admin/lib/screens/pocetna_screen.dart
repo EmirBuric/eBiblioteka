@@ -127,16 +127,35 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                                 title: Text(knjiga.naziv ?? 'Nepoznat naziv'),
                                 trailing: ElevatedButton(
                                   onPressed: () async {
-                                    await _knjigaProvider
-                                        .setKnjigaDana(knjiga.knjigaId!);
-                                    var data = await _knjigaProvider
-                                        .get(filter: {'KnjigaDana': true});
-                                    setState(() {
-                                      if (data.result.isNotEmpty) {
-                                        knjigaDana = data.result.first;
-                                      }
-                                    });
-                                    Navigator.of(context).pop();
+                                    try {
+                                      await _knjigaProvider
+                                          .setKnjigaDana(knjiga.knjigaId!);
+                                      var data = await _knjigaProvider
+                                          .get(filter: {'KnjigaDana': true});
+                                      setState(() {
+                                        if (data.result.isNotEmpty) {
+                                          knjigaDana = data.result.first;
+                                        }
+                                      });
+                                      Navigator.of(context).pop();
+                                    } catch (e) {
+                                      Navigator.of(context).pop();
+                                      await showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text("Greška"),
+                                          content: Text(
+                                              "Dogodila se greška prilikom postavljanja knjige dana: $e"),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context).pop(),
+                                              child: const Text("OK"),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }
                                   },
                                   child: const Text("Odaberi"),
                                 ),

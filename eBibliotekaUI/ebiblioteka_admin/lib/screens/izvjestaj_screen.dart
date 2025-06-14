@@ -363,7 +363,7 @@ class _IzvjestajScreenState extends State<IzvjestajScreen> {
                 textAlign: pw.TextAlign.center,
               ),
               pw.Text(
-                'Period: ${_dateRange!.start.day}.${_dateRange!.start.month}.${_dateRange!.start.year} - ${_dateRange!.end.day}.${_dateRange!.end.month}.${_dateRange!.end.year}',
+                'Period: ${formatDateToLocal(_dateRange!.start)} - ${formatDateToLocal(_dateRange!.end)}',
                 style: pw.TextStyle(
                   fontSize: 14,
                   color: PdfColors.grey700,
@@ -658,8 +658,7 @@ class _IzvjestajScreenState extends State<IzvjestajScreen> {
                                   icon: const Icon(Icons.date_range),
                                   label: Text(_dateRange == null
                                       ? 'Odaberi period izvještaja'
-                                      : '${_dateRange!.start.day}.${_dateRange!.start.month}.${_dateRange!.start.year} - '
-                                          '${_dateRange!.end.day}.${_dateRange!.end.month}.${_dateRange!.end.year}'),
+                                      : '${formatDateToLocal(_dateRange!.start)} - ${formatDateToLocal(_dateRange!.end)}'),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.blueAccent,
                                     foregroundColor: Colors.white,

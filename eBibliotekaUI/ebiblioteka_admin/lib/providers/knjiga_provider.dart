@@ -27,7 +27,7 @@ class KnjigaProvider extends BaseProvider<Knjiga> {
         return;
       }
     } catch (e) {
-      throw Exception('Greška prilikom komunikacije sa serverom: $e');
+      throw Exception(e.toString());
     }
   }
 

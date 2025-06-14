@@ -9,7 +9,6 @@ import 'package:ebiblioteka_admin/providers/rezervacija_provider.dart';
 import 'package:ebiblioteka_admin/providers/korisnik_provider.dart';
 import 'package:ebiblioteka_admin/providers/knjiga_provider.dart';
 import 'package:ebiblioteka_admin/providers/clanarina_provider.dart';
-import 'package:intl/intl.dart';
 import 'dart:async';
 
 class RezervacijaScreen extends StatefulWidget {
@@ -740,9 +739,8 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                                                       Text(
                                                         rezervacija.datumRezervacije !=
                                                                 null
-                                                            ? DateFormat(
-                                                                    'dd.MM.yyyy')
-                                                                .format(rezervacija
+                                                            ? formatDateToLocal(
+                                                                rezervacija
                                                                     .datumRezervacije!)
                                                             : 'Nije određeno',
                                                         style: const TextStyle(
@@ -772,9 +770,8 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                                                       Text(
                                                         rezervacija.datumVracanja !=
                                                                 null
-                                                            ? DateFormat(
-                                                                    'dd.MM.yyyy')
-                                                                .format(rezervacija
+                                                            ? formatDateToLocal(
+                                                                rezervacija
                                                                     .datumVracanja!)
                                                             : 'Nije određeno',
                                                         style: const TextStyle(

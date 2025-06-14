@@ -5,7 +5,7 @@ import '../models/clanarina.dart';
 import '../models/korisnik.dart';
 import '../providers/clanarina_provider.dart';
 import '../providers/tip_clanarine_provider.dart';
-import 'package:intl/intl.dart';
+import '../providers/utils.dart';
 
 class UplataClanarineScreen extends StatefulWidget {
   final Korisnik? korisnik;
@@ -161,15 +161,15 @@ class _UplataClanarineScreenState extends State<UplataClanarineScreen> {
                                 ListTile(
                                   title: const Text('Datum uplate'),
                                   subtitle: Text(
-                                    DateFormat('dd.MM.yyyy')
-                                        .format(zadnjaClanarina!.datumUplate!),
+                                    formatDateToLocal(
+                                        zadnjaClanarina!.datumUplate!),
                                   ),
                                 ),
                                 ListTile(
                                   title: const Text('Datum isteka'),
                                   subtitle: Text(
-                                    DateFormat('dd.MM.yyyy')
-                                        .format(zadnjaClanarina!.datumIsteka!),
+                                    formatDateToLocal(
+                                        zadnjaClanarina!.datumIsteka!),
                                   ),
                                 ),
                                 ListTile(

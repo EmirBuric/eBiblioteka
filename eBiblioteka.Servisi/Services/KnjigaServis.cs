@@ -85,11 +85,16 @@ namespace eBiblioteka.Servisi.Services
                 entity.Dostupna = false;
             }
 
+            if(insert.Autori.IsNullOrEmpty())
+            {
+                throw new UserException("Autori moraju imati vrijednost!");
+            }
+            
         }
 
         public override async Task AfterInsert(KnjigaInsertRequest insert, Knjiga entity, CancellationToken cancellationToken = default)
         {
-            if (insert?.Autori != null)
+            if (!insert.Autori.IsNullOrEmpty())
             {
                 foreach (var autorId in insert.Autori)
                 {
@@ -102,6 +107,10 @@ namespace eBiblioteka.Servisi.Services
 
                 await Context.SaveChangesAsync(cancellationToken);
             }
+            else
+            {
+                throw new UserException("Autori moraju imati vrijednost!");
+            }
         }
 
         public override async Task BeforeUpdate(KnjigaUpdateRequest update, Knjiga entity, CancellationToken cancellationToken = default)
@@ -111,7 +120,7 @@ namespace eBiblioteka.Servisi.Services
             {
                 entity.Dostupna = false;
             }
-            if (update?.Autori != null)
+            if (!update.Autori.IsNullOrEmpty())
             {
                 var knjigaAutori = await Context
                .KnjigaAutors
@@ -204,6 +213,13 @@ namespace eBiblioteka.Servisi.Services
                 var novePreporuke = await Context.Knjigas
                     .Where(k => novePreporukeIds.Contains(k.KnjigaId))
                     .ToListAsync();
+
+                var nedostupneKnjige = novePreporuke.Where(k => k.Dostupna == false).ToList();
+                if (nedostupneKnjige.Any())
+                {
+                    var naslovi = string.Join(", ", nedostupneKnjige.Select(k => k.Naziv)); 
+                    throw new UserException($"Sljedeće knjige nisu dostupne: {naslovi}. Molimo odaberite dostupne knjige za preporuku.");
+                }
 
                 foreach (var knjiga in novePreporuke)
                     knjiga.Preporuceno = true;

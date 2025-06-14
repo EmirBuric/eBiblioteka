@@ -267,7 +267,7 @@ class _RecenzijaListScreenState extends State<RecenzijaListScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Datum: ${recenzija.datumRecenzije != null ? recenzija.datumRecenzije!.toLocal().toString().split(' ')[0] : '-'}',
+                                  'Datum: ${recenzija.datumRecenzije != null ? formatDateToLocal(recenzija.datumRecenzije!) : '-'}',
                                   style: const TextStyle(
                                       fontSize: 12, color: Colors.grey),
                                 ),

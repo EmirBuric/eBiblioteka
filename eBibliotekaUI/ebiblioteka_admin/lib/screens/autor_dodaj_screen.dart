@@ -287,7 +287,7 @@ class _AutorDodajScreenState extends State<AutorDodajScreen> {
                             Text(
                               _selectedDate == null
                                   ? 'Odaberite datum'
-                                  : '${_selectedDate!.day}.${_selectedDate!.month}.${_selectedDate!.year}.',
+                                  : formatDateToLocal(_selectedDate!),
                               style: TextStyle(
                                 color: _selectedDate == null
                                     ? Colors.grey.shade600

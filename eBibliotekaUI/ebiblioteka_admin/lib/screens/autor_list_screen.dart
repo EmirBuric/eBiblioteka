@@ -4,7 +4,6 @@ import '../providers/autor_provider.dart';
 import '../models/autor.dart';
 import 'dart:async';
 import 'autor_dodaj_screen.dart';
-import 'package:intl/intl.dart';
 import '../providers/utils.dart';
 
 class AutorListScreen extends StatefulWidget {
@@ -280,7 +279,7 @@ class _AutorListScreenState extends State<AutorListScreen> {
                                           padding:
                                               const EdgeInsets.only(bottom: 8),
                                           child: Text(
-                                            "Datum rođenja: ${DateFormat('dd.MM.yyyy').format(autor.datumRodjenja!)}",
+                                            "Datum rođenja: ${formatDateToLocal(autor.datumRodjenja!)}",
                                             style: TextStyle(
                                               fontSize: 14,
                                               color: Colors.grey[600],
