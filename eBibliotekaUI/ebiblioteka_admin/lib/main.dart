@@ -1,5 +1,4 @@
 import 'package:ebiblioteka_admin/screens/login_screen.dart';
-import 'package:ebiblioteka_admin/screens/uplata_clanarine_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {

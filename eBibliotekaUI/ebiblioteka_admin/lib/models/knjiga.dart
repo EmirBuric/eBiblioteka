@@ -29,22 +29,4 @@ class Knjiga {
   Map<String, dynamic> toJson() => _$KnjigaToJson(this);
 }
 
-class KnjigaInsert {
-  String? naziv;
-  String? kratkiOpis;
-  int? godinaIzdanja;
-  String? slika; // image bytes
-  int? zanrId;
-  int? kolicina;
-  List<int>? autori;
 
-  KnjigaInsert({
-    this.naziv,
-    this.kratkiOpis,
-    this.godinaIzdanja,
-    this.slika,
-    this.zanrId,
-    this.kolicina,
-    this.autori,
-  });
-}

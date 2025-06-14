@@ -143,10 +143,10 @@ class Login extends StatelessWidget {
                                 decoration: const InputDecoration(
 
                                     // Placeholder text.
-                                    hintText: 'Username',
+                                    hintText: 'Korisničko ime',
 
                                     // Label for the field.
-                                    labelText: 'Username',
+                                    labelText: 'Korisničko ime',
                                     prefixIcon: Icon(
                                       Icons.person,
                                     ),
