@@ -977,8 +977,6 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                   ocjena: ocjena,
                 );
 
-                Navigator.pop(context);
-
                 await _recenzijaProvider.insert(recenzija);
 
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -989,6 +987,7 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                   ),
                 );
 
+                Navigator.pop(context);
                 _loadRecenzije();
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -997,6 +996,7 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                     backgroundColor: Colors.red,
                   ),
                 );
+                Navigator.pop(context);
               }
             },
             style: ElevatedButton.styleFrom(

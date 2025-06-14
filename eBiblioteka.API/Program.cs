@@ -178,7 +178,7 @@ using (var scope = app.Services.CreateScope())
             {
                 new TipClanarine { VrijemeTrajanja = 1, Cijena = 10 },
                 new TipClanarine { VrijemeTrajanja = 3, Cijena = 25 },
-                new TipClanarine { VrijemeTrajanja = 5, Cijena = 45 },
+                new TipClanarine { VrijemeTrajanja = 6, Cijena = 45 },
                 new TipClanarine { VrijemeTrajanja = 12, Cijena = 80 }
             };
             context.TipClanarines.AddRange(tipClanarini);
@@ -213,7 +213,6 @@ using (var scope = app.Services.CreateScope())
             context.Korisniks.AddRange(korisnici);
             context.SaveChanges();
 
-            // Sada dohvati sve ID-jeve za foreign key veze
             var adminUloga = context.Ulogas.First(u => u.Naziv == "Admin");
             var korisnikUloga = context.Ulogas.First(u => u.Naziv == "Korisnik");
 
