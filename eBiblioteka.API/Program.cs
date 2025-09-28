@@ -82,6 +82,16 @@ builder.Services.AddAuthentication("BasicAuthentication").
 
 builder.Services.AddMapster();
 
+builder.Services.AddCors(options=>
+{
+    options.AddPolicy("AllowCORSOrigins", policy =>
+    {
+        policy.WithOrigins("http://localhost:60000")
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
+
 
 var app = builder.Build();
 
@@ -91,6 +101,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowCORSOrigins");
 
 app.UseHttpsRedirection();
 

@@ -129,7 +129,7 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                                   onPressed: () async {
                                     try {
                                       await _knjigaProvider
-                                          .getById(knjiga.knjigaId!);
+                                          .setKnjigaDana(knjiga.knjigaId!);
                                       var data = await _knjigaProvider
                                           .get(filter: {'KnjigaDana': true});
                                       setState(() {
@@ -338,7 +338,7 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                   ElevatedButton(
                     onPressed: () async {
                       try {
-                        await _knjigaProvider.get();
+                        await _knjigaProvider.setPreporucenaKnjiga(selectedIds);
                         var data = await _knjigaProvider
                             .get(filter: {'Preporuceno': true});
                         setState(() {

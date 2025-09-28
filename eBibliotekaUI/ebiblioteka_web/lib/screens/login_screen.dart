@@ -1,5 +1,7 @@
 import 'package:ebiblioteka_web/providers/auth_provider.dart';
+import 'package:ebiblioteka_web/providers/knjiga_provider.dart';
 import 'package:ebiblioteka_web/providers/korisnik_provider.dart';
+import 'package:ebiblioteka_web/screens/pocetna_screen.dart';
 import 'package:flutter/material.dart';
 
 class Login extends StatelessWidget {
@@ -36,7 +38,14 @@ class Login extends StatelessWidget {
         return;
       }
 
-      if (context.mounted) {}
+      KnjigaProvider provider = KnjigaProvider();
+      await provider.get();
+
+      if (context.mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const PocetnaScreen()),
+        );
+      }
     } catch (e) {
       if (context.mounted) {
         showDialog(
