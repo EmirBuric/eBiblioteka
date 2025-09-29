@@ -1,3 +1,5 @@
+import 'package:ebiblioteka_web/screens/knjige_list_screen.dart';
+import 'package:ebiblioteka_web/screens/pocetna_screen.dart';
 import 'package:flutter/material.dart';
 
 class MasterScreen extends StatefulWidget {
@@ -19,10 +21,12 @@ class _MasterScreenState extends State<MasterScreen> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            _buildNavButton("eBiblioteka", null, widget.title == "Početna",
+            _buildNavButton(
+                "eBiblioteka", PocetnaScreen(), widget.title == "Početna",
                 isLogo: true),
             const SizedBox(width: 30),
-            _buildNavButton("Knjige", null, widget.title == "Knjige"),
+            _buildNavButton(
+                "Knjige", KnjigeListScreen(), widget.title == "Knjige"),
             _buildNavButton("Autori", null, widget.title == "Autori"),
             _buildNavButton("Recenzije", null, widget.title == "Recenzije"),
             _buildNavButton("Korisnici", null, widget.title == "Korisnici"),
