@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ebiblioteka_admin/layouts/master_screen.dart';
+import 'package:ebiblioteka_web/layouts/master_screen.dart';
 import '../models/korisnik.dart';
 import '../providers/korisnik_provider.dart';
 import '../providers/uloga_provider.dart';
 import '../providers/auth_provider.dart';
-import '../screens/uplata_clanarine_screen.dart';
 
 class KorisniciListScreen extends StatefulWidget {
   const KorisniciListScreen({super.key});
@@ -353,16 +352,7 @@ class _KorisniciListScreenState extends State<KorisniciListScreen> {
                                                                       AuthProvider
                                                                           .trenutniKorisnikId
                                                                   ? null
-                                                                  : () {
-                                                                      Navigator.of(
-                                                                              context)
-                                                                          .push(
-                                                                        MaterialPageRoute(
-                                                                          builder: (context) =>
-                                                                              UplataClanarineScreen(korisnik: korisnik),
-                                                                        ),
-                                                                      );
-                                                                    },
+                                                                  : () {},
                                                             ),
                                                             IconButton(
                                                               icon: const Icon(
