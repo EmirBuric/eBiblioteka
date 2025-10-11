@@ -2,6 +2,7 @@ import 'package:ebiblioteka_web/screens/autor_list_screen.dart';
 import 'package:ebiblioteka_web/screens/knjige_list_screen.dart';
 import 'package:ebiblioteka_web/screens/pocetna_screen.dart';
 import 'package:ebiblioteka_web/screens/recenzija_list_screen.dart';
+import 'package:ebiblioteka_web/screens/rezervacija_screen.dart';
 import 'package:flutter/material.dart';
 
 class MasterScreen extends StatefulWidget {
@@ -34,7 +35,8 @@ class _MasterScreenState extends State<MasterScreen> {
             _buildNavButton("Recenzije", RecenzijaListScreen(),
                 widget.title == "Recenzije"),
             _buildNavButton("Korisnici", null, widget.title == "Korisnici"),
-            _buildNavButton("Rezervacije", null, widget.title == "Rezervacije"),
+            _buildNavButton("Rezervacije", RezervacijaScreen(),
+                widget.title == "Rezervacije"),
             _buildNavButton("Izvještaj", null, widget.title == "Izvještaj"),
           ],
         ),

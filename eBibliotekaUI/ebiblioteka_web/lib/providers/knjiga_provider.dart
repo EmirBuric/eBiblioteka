@@ -1,3 +1,4 @@
+import 'package:ebiblioteka_web/models/dostupnost_knjige.dart';
 import 'package:ebiblioteka_web/models/knjiga.dart';
 import 'package:ebiblioteka_web/providers/base_provider.dart';
 
@@ -39,6 +40,28 @@ class KnjigaProvider extends BaseProvider<Knjiga> {
 
     if (!isValidResponse(response)) {
       throw Exception('Greška prilikom slanja preporučenih knjiga');
+    }
+  }
+
+  Future<DostupnostKnjige> getDostupnostZaPeriod(
+      int knjigaId, DateTime datumOd, DateTime datumDo) async {
+    String endpoint =
+        "Knjiga/Kalendar/$knjigaId?datumOd=${datumOd.toIso8601String()}&datumDo=${datumDo.toIso8601String()}";
+    final uri = Uri.parse('${BaseProvider.baseUrl}$endpoint');
+
+    final headers = createHeaders();
+
+    try {
+      final response = await http.get(uri, headers: headers);
+
+      if (isValidResponse(response)) {
+        final json = jsonDecode(response.body);
+        return DostupnostKnjige.fromJson(json);
+      } else {
+        throw Exception('Greška prilikom dohvatanja dostupnosti');
+      }
+    } catch (e) {
+      throw Exception('Greška prilikom komunikacije sa serverom: $e');
     }
   }
 }
