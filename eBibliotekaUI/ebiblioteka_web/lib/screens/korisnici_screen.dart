@@ -1,3 +1,4 @@
+import 'package:ebiblioteka_web/screens/uplata_clanarine_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ebiblioteka_web/layouts/master_screen.dart';
 import '../models/korisnik.dart';
@@ -352,7 +353,16 @@ class _KorisniciListScreenState extends State<KorisniciListScreen> {
                                                                       AuthProvider
                                                                           .trenutniKorisnikId
                                                                   ? null
-                                                                  : () {},
+                                                                  : () {
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .push(
+                                                                        MaterialPageRoute(
+                                                                          builder: (context) =>
+                                                                              UplataClanarineScreen(korisnik: korisnik),
+                                                                        ),
+                                                                      );
+                                                                    },
                                                             ),
                                                             IconButton(
                                                               icon: const Icon(
