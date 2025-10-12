@@ -1,4 +1,5 @@
 import 'package:ebiblioteka_web/models/dostupnost_knjige.dart';
+import 'package:ebiblioteka_web/models/izvjestaj_knjiga.dart';
 import 'package:ebiblioteka_web/models/knjiga.dart';
 import 'package:ebiblioteka_web/providers/base_provider.dart';
 
@@ -59,6 +60,28 @@ class KnjigaProvider extends BaseProvider<Knjiga> {
         return DostupnostKnjige.fromJson(json);
       } else {
         throw Exception('Greška prilikom dohvatanja dostupnosti');
+      }
+    } catch (e) {
+      throw Exception('Greška prilikom komunikacije sa serverom: $e');
+    }
+  }
+
+  Future<IzvjestajKnjiga> getKnjigaIzvjestaj(
+      int knjigaId, DateTime datumOd, DateTime datumDo) async {
+    String endpoint =
+        "Knjiga/Izvjestaj/$knjigaId?datumOd=${datumOd.toIso8601String()}&datumDo=${datumDo.toIso8601String()}";
+    final uri = Uri.parse('${BaseProvider.baseUrl}$endpoint');
+
+    final headers = createHeaders();
+
+    try {
+      final response = await http.get(uri, headers: headers);
+
+      if (isValidResponse(response)) {
+        final json = jsonDecode(response.body);
+        return IzvjestajKnjiga.fromJson(json);
+      } else {
+        throw Exception('Greška prilikom dohvatanja izvještaja');
       }
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');

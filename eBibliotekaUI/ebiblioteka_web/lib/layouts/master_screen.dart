@@ -1,4 +1,5 @@
 import 'package:ebiblioteka_web/screens/autor_list_screen.dart';
+import 'package:ebiblioteka_web/screens/izvjestaj_screen.dart';
 import 'package:ebiblioteka_web/screens/knjige_list_screen.dart';
 import 'package:ebiblioteka_web/screens/korisnici_screen.dart';
 import 'package:ebiblioteka_web/screens/pocetna_screen.dart';
@@ -39,7 +40,8 @@ class _MasterScreenState extends State<MasterScreen> {
                 widget.title == "Korisnici"),
             _buildNavButton("Rezervacije", RezervacijaScreen(),
                 widget.title == "Rezervacije"),
-            _buildNavButton("Izvještaj", null, widget.title == "Izvještaj"),
+            _buildNavButton(
+                "Izvještaj", IzvjestajScreen(), widget.title == "Izvještaj"),
           ],
         ),
       ),
