@@ -300,7 +300,7 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16.0, vertical: 8.0),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).scaffoldBackgroundColor,
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.1),
@@ -318,7 +318,9 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                                     ? _dodajUListuRezervacija
                                     : null,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.purple,
+                                  backgroundColor:
+                                      Theme.of(context).primaryColor,
+                                  foregroundColor: Colors.white,
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
@@ -344,16 +346,18 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                                   _showAddRecenzijaDialog();
                                 },
                                 style: OutlinedButton.styleFrom(
-                                  side: const BorderSide(color: Colors.purple),
+                                  side: BorderSide(
+                                      color: Theme.of(context).primaryColor),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30),
                                   ),
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 12),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'Ocjenite ovu knjigu',
-                                  style: TextStyle(color: Colors.purple),
+                                  style: TextStyle(
+                                      color: Theme.of(context).primaryColor),
                                 ),
                               ),
                       ),
@@ -381,7 +385,9 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
               ),
             )
           : BoxDecoration(
-              color: Colors.grey[300],
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.grey[800]
+                  : Colors.grey[300],
             ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -390,10 +396,14 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
               widget.knjiga.naziv ?? 'Nepoznat naslov',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: widget.knjiga.slika != null
+                    ? Colors.white
+                    : (Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black),
               ),
               textAlign: TextAlign.center,
             ),
@@ -416,8 +426,14 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
+                  backgroundColor:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey[700]
+                          : Colors.white,
+                  foregroundColor:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -831,7 +847,11 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade300),
+        side: BorderSide(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.grey[700]!
+              : Colors.grey.shade300,
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -841,8 +861,14 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: Colors.grey[300],
-                  child: const Icon(Icons.person, color: Colors.grey),
+                  backgroundColor:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey[700]
+                          : Colors.grey[300],
+                  child: Icon(
+                    Icons.person,
+                    color: Theme.of(context).iconTheme.color,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -873,7 +899,10 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
             const SizedBox(height: 8),
             Text(
               recenzija.opis ?? 'Nema opisa',
-              style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+              ),
             ),
           ],
         ),
@@ -1000,7 +1029,7 @@ class _RezervacijaScreenState extends State<RezervacijaScreen> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.purple,
+              backgroundColor: Theme.of(context).primaryColor,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),

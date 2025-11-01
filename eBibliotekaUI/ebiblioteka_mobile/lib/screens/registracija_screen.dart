@@ -132,7 +132,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Logo sekcija na vrhu
               Padding(
                 padding: const EdgeInsets.only(top: 20.0, bottom: 30.0),
                 child: Center(
@@ -151,8 +150,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                   ),
                 ),
               ),
-
-              // Naslov
               const Text(
                 'Registracija',
                 style: TextStyle(
@@ -162,13 +159,10 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Forma
               Form(
                 key: _formKey,
                 child: Column(
                   children: [
-                    // Ime
                     TextFormField(
                       controller: _imeController,
                       decoration: const InputDecoration(
@@ -189,8 +183,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-
-                    // Prezime
                     TextFormField(
                       controller: _prezimeController,
                       decoration: const InputDecoration(
@@ -211,8 +203,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-
-                    // Email
                     TextFormField(
                       controller: _emailController,
                       decoration: const InputDecoration(
@@ -223,7 +213,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                         if (value == null || value.isEmpty) {
                           return 'Ovo polje ne može biti prazno';
                         }
-                        // Jednostavna email validacija
                         final emailRegex =
                             RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                         if (!emailRegex.hasMatch(value)) {
@@ -233,8 +222,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-
-                    // Telefon
                     TextFormField(
                       controller: _telefonController,
                       decoration: const InputDecoration(
@@ -244,9 +231,8 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return null; // Telefon nije obavezan
+                          return null;
                         }
-                        // Validacija telefona prema zadatom formatu
                         final phoneRegex = RegExp(
                             r'^(?:\+387)[\s-]?[6][0-9][\s-]?[0-9]{3}[\s-]?[0-9]{3}$');
                         if (!phoneRegex.hasMatch(value)) {
@@ -256,8 +242,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-
-                    // Korisničko ime
                     TextFormField(
                       controller: _korisnickoImeController,
                       decoration: const InputDecoration(
@@ -278,8 +262,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-
-                    // Lozinka
                     TextFormField(
                       controller: _lozinkaController,
                       obscureText: true,
@@ -295,8 +277,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-
-                    // Potvrda lozinke
                     TextFormField(
                       controller: _lozinkaPotvrda,
                       obscureText: true,
@@ -315,8 +295,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                       },
                     ),
                     const SizedBox(height: 32),
-
-                    // Dugme za registraciju
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -337,8 +315,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-
-                    // Link za prijavu
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pushReplacement(
@@ -347,7 +323,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                       },
                       child: const Text('Već imate račun? Prijavite se'),
                     ),
-                    // Dodatni prostor na dnu za scrollanje
                     const SizedBox(height: 20),
                   ],
                 ),

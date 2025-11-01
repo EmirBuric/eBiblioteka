@@ -320,8 +320,6 @@ class _PayPalScreenState extends State<PayPalScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Plati sa PayPal'),
-          backgroundColor: const Color.fromARGB(255, 101, 85, 143),
-          foregroundColor: Colors.white,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.of(context).pop(),

@@ -36,7 +36,6 @@ class _KnjigaDetailsScreenState extends State<KnjigaDetailsScreen> {
   int currentPage = 1;
   int pageSize = 3;
 
-  // Add this to your existing state variables
   bool _isDescriptionExpanded = false;
 
   @override
@@ -120,13 +119,11 @@ class _KnjigaDetailsScreenState extends State<KnjigaDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Book image and basic info section
                     Container(
                       padding: const EdgeInsets.all(16),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Book image
                           Container(
                             width: 120,
                             height: 180,
@@ -136,12 +133,18 @@ class _KnjigaDetailsScreenState extends State<KnjigaDetailsScreen> {
                             child: widget.knjiga.slika != null
                                 ? imageFromString(widget.knjiga.slika!)
                                 : Container(
-                                    color: Colors.grey[300],
-                                    child: const Icon(Icons.book, size: 50),
+                                    color: Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? Colors.grey[800]
+                                        : Colors.grey[300],
+                                    child: Icon(
+                                      Icons.book,
+                                      size: 50,
+                                      color: Theme.of(context).iconTheme.color,
+                                    ),
                                   ),
                           ),
                           const SizedBox(width: 16),
-                          // Book details
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,8 +202,6 @@ class _KnjigaDetailsScreenState extends State<KnjigaDetailsScreen> {
                         ],
                       ),
                     ),
-
-                    // Description section
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -261,8 +262,6 @@ class _KnjigaDetailsScreenState extends State<KnjigaDetailsScreen> {
                         ],
                       ),
                     ),
-
-                    // Categories section
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -299,7 +298,6 @@ class _KnjigaDetailsScreenState extends State<KnjigaDetailsScreen> {
                                     padding: const EdgeInsets.all(12),
                                     child: Row(
                                       children: [
-                                        // Book image
                                         Container(
                                           width: 60,
                                           height: 90,
@@ -310,12 +308,20 @@ class _KnjigaDetailsScreenState extends State<KnjigaDetailsScreen> {
                                           child: knjiga.slika != null
                                               ? imageFromString(knjiga.slika!)
                                               : Container(
-                                                  color: Colors.grey[300],
-                                                  child: const Icon(Icons.book),
+                                                  color: Theme.of(context)
+                                                              .brightness ==
+                                                          Brightness.dark
+                                                      ? Colors.grey[800]
+                                                      : Colors.grey[300],
+                                                  child: Icon(
+                                                    Icons.book,
+                                                    color: Theme.of(context)
+                                                        .iconTheme
+                                                        .color,
+                                                  ),
                                                 ),
                                         ),
                                         const SizedBox(width: 12),
-                                        // Book info
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment:

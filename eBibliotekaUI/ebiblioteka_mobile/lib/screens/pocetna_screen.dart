@@ -20,6 +20,8 @@ import 'package:ebiblioteka_mobile/providers/knjiga_provider.dart';
 import 'package:ebiblioteka_mobile/providers/zanr_provider.dart';
 import 'package:ebiblioteka_mobile/providers/autor_provider.dart';
 import 'package:ebiblioteka_mobile/providers/utils.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 
 class PocetnaScreen extends StatefulWidget {
   const PocetnaScreen({Key? key}) : super(key: key);
@@ -215,12 +217,10 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
               ? TextField(
                   controller: _searchController,
                   autofocus: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Pretražite knjige...',
-                    hintStyle: const TextStyle(color: Colors.grey),
                     border: InputBorder.none,
                   ),
-                  style: const TextStyle(color: Colors.black),
                   onChanged: (value) {
                     _searchKnjige(value);
                   },
@@ -281,6 +281,39 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                     ),
                   ),
               ],
+            ),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              onSelected: (value) {
+                if (value == 'theme') {
+                  Provider.of<ThemeProvider>(context, listen: false)
+                      .toggleTheme();
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                final themeProvider =
+                    Provider.of<ThemeProvider>(context, listen: false);
+                return [
+                  PopupMenuItem<String>(
+                    value: 'theme',
+                    child: Row(
+                      children: [
+                        Icon(
+                          themeProvider.isDarkMode
+                              ? Icons.light_mode
+                              : Icons.dark_mode,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          themeProvider.isDarkMode
+                              ? 'Svijetli način'
+                              : 'Tamni način',
+                        ),
+                      ],
+                    ),
+                  ),
+                ];
+              },
             ),
           ],
         ),
@@ -475,7 +508,11 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                                               decoration: BoxDecoration(
                                                 borderRadius:
                                                     BorderRadius.circular(8),
-                                                color: Colors.grey[200],
+                                                color: Theme.of(context)
+                                                            .brightness ==
+                                                        Brightness.dark
+                                                    ? Colors.grey[800]
+                                                    : Colors.grey[200],
                                               ),
                                               child: knjiga.slika != null
                                                   ? ClipRRect(
@@ -485,9 +522,13 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                                                       child: imageFromString(
                                                           knjiga.slika!),
                                                     )
-                                                  : const Center(
+                                                  : Center(
                                                       child: Icon(Icons.book,
-                                                          size: 40),
+                                                          size: 40,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .iconTheme
+                                                                  .color),
                                                     ),
                                             ),
                                             const SizedBox(height: 8),
@@ -590,11 +631,19 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                                                   width: 60,
                                                   height: 60,
                                                   decoration: BoxDecoration(
-                                                    color: Colors.grey[300],
+                                                    color: Theme.of(context)
+                                                                .brightness ==
+                                                            Brightness.dark
+                                                        ? Colors.grey[800]
+                                                        : Colors.grey[300],
                                                     shape: BoxShape.circle,
                                                   ),
-                                                  child: const Icon(
-                                                      Icons.category),
+                                                  child: Icon(
+                                                    Icons.category,
+                                                    color: Theme.of(context)
+                                                        .iconTheme
+                                                        .color,
+                                                  ),
                                                 ),
                                                 const SizedBox(height: 8),
                                                 Expanded(
@@ -865,7 +914,11 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               8),
-                                                      color: Colors.grey[200],
+                                                      color: Theme.of(context)
+                                                                  .brightness ==
+                                                              Brightness.dark
+                                                          ? Colors.grey[800]
+                                                          : Colors.grey[200],
                                                     ),
                                                     child: knjiga.slika != null
                                                         ? ClipRRect(
@@ -878,10 +931,14 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                                                                     knjiga
                                                                         .slika!),
                                                           )
-                                                        : const Center(
+                                                        : Center(
                                                             child: Icon(
                                                                 Icons.book,
-                                                                size: 40),
+                                                                size: 40,
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .iconTheme
+                                                                    .color),
                                                           ),
                                                   ),
                                                   const SizedBox(height: 8),

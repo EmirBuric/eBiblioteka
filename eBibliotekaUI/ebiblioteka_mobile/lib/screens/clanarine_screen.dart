@@ -146,8 +146,6 @@ class _ClanarineScreenState extends State<ClanarineScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Članarina'),
-          backgroundColor: const Color.fromARGB(255, 101, 85, 143),
-          foregroundColor: Colors.white,
         ),
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -232,13 +230,12 @@ class _ClanarineScreenState extends State<ClanarineScreen> {
                             ),
                             child: ListTile(
                               leading: CircleAvatar(
-                                backgroundColor:
-                                    const Color.fromARGB(255, 101, 85, 143)
-                                        .withOpacity(0.2),
+                                backgroundColor: Theme.of(context)
+                                    .primaryColor
+                                    .withOpacity(0.2),
                                 child: Icon(
                                   Icons.calendar_today,
-                                  color:
-                                      const Color.fromARGB(255, 101, 85, 143),
+                                  color: Theme.of(context).primaryColor,
                                 ),
                               ),
                               title: Text(
