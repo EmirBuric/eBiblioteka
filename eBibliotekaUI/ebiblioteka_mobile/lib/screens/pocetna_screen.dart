@@ -22,6 +22,7 @@ import 'package:ebiblioteka_mobile/providers/autor_provider.dart';
 import 'package:ebiblioteka_mobile/providers/utils.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import 'historija_rezervacija_screen.dart';
 
 class PocetnaScreen extends StatefulWidget {
   const PocetnaScreen({Key? key}) : super(key: key);
@@ -288,6 +289,12 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                 if (value == 'theme') {
                   Provider.of<ThemeProvider>(context, listen: false)
                       .toggleTheme();
+                } else if (value == 'historija') {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const HistorijaRezervacijaScreen(),
+                    ),
+                  );
                 }
               },
               itemBuilder: (BuildContext context) {
@@ -309,6 +316,16 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                               ? 'Svijetli način'
                               : 'Tamni način',
                         ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'historija',
+                    child: Row(
+                      children: [
+                        Icon(Icons.history),
+                        SizedBox(width: 12),
+                        Text('Historija rezervacija'),
                       ],
                     ),
                   ),
