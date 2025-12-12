@@ -76,6 +76,30 @@ namespace eBiblioteka.Servisi.Izvjestaji
 
             return statistika;
         }
-    
+
+        public async Task<ClanarinaIzvjestajDTO> MjesecniIzvjestaj(int mjesec, int godina)
+        {
+            var tipIzvjestaji = await _context.Clanarinas
+                .Where(c => c.DatumUplate.Month == mjesec && c.DatumUplate.Year == godina)
+                .Include(c => c.TipClanarine)
+                .GroupBy(c => c.TipClanarine.TipClanarineId)
+                .Select(g => new TipIzvjestajDTO
+                {
+                    TipClanarineId = g.Key,
+                    BrojPoTipu = g.Count(),
+                    ZaradaPoTipu = g.Sum(x => x.TipClanarine.Cijena)
+                })
+                .ToListAsync();
+
+            var ukupnaZarada = await _context.Clanarinas
+                .Where(c => c.DatumUplate.Month == mjesec && c.DatumUplate.Year == godina)
+                .SumAsync(c => c.TipClanarine.Cijena);
+
+            return new ClanarinaIzvjestajDTO
+            {
+                UkupnaZarada = ukupnaZarada,
+                TipIzvjestaji = tipIzvjestaji,
+            };
+        }
     }
 }

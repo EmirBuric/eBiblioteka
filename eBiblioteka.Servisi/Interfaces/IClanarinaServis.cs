@@ -14,5 +14,7 @@ namespace eBiblioteka.Servisi.Interfaces
         public Task<ClanarinaDTO> GetClanarinaByKorisnikId(int korisnikId);
 
         public Task ProvjeriValidnostClanarine();
+
+        public Task<ClanarinaIzvjestajDTO> GetMjesecniIzvjestaj(int mjesec, int godina);
     }
 }

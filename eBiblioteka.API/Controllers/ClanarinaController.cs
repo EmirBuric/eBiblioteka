@@ -17,5 +17,11 @@ namespace eBiblioteka.API.Controllers
         {
             return await (_servis as IClanarinaServis).GetClanarinaByKorisnikId(korisnikId);
         }
+
+        [HttpGet("GetMjesecniIzvjestaj")]
+        public async Task<ClanarinaIzvjestajDTO> GetMjesecniIzvjestaj(int mjesec, int godina)
+        {
+            return await (_servis as IClanarinaServis).GetMjesecniIzvjestaj(mjesec, godina);
+        }
     }
 }

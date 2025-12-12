@@ -4,6 +4,7 @@ using eBiblioteka.Modeli.SearchObjects;
 using eBiblioteka.Modeli.UpsertRequest;
 using eBiblioteka.Servisi.Database;
 using eBiblioteka.Servisi.Interfaces;
+using eBiblioteka.Servisi.Izvjestaji;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,6 +13,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace eBiblioteka.Servisi.Services
 {
@@ -19,9 +21,12 @@ namespace eBiblioteka.Servisi.Services
     {
         private readonly ITipClanarineServis _tipClanarineServis;
 
-        public ClanarinaSerivis(Db180105Context context, IMapper mapper, ITipClanarineServis tipClanarineServis) : base(context, mapper)
+        private readonly IIzvejstajServis _izvejstajServis;
+
+        public ClanarinaSerivis(Db180105Context context, IMapper mapper, ITipClanarineServis tipClanarineServis, IIzvejstajServis izvejstajServis) : base(context, mapper)
         {
             _tipClanarineServis = tipClanarineServis;
+            _izvejstajServis = izvejstajServis;
         }
 
         public override IQueryable<Clanarina> AddFilter(ClanarinaSearchObject search, IQueryable<Clanarina> query)
@@ -134,6 +139,13 @@ namespace eBiblioteka.Servisi.Services
             {
                 await Context.SaveChangesAsync();
             }
+        }
+
+        public async Task<ClanarinaIzvjestajDTO> GetMjesecniIzvjestaj(int mjesec, int godina)
+        {
+            var statistika = await _izvejstajServis.MjesecniIzvjestaj(mjesec, godina);
+
+            return statistika;
         }
     }
 }

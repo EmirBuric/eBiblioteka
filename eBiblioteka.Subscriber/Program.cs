@@ -4,21 +4,6 @@ using eBiblioteka.Modeli.Messages;
 using eBiblioteka.Subscriber;
 using Microsoft.Extensions.Configuration;
 
-/*Console.WriteLine("Hello, World!");
-
-var bus = RabbitHutch.CreateBus("host=localhost");
-
-await bus.PubSub.SubscribeAsync<AutoriSearched>("console_printer", msg =>
-{
-    Console.WriteLine($"Korisnik pretrazio ove autore: {msg.Autori.ImeGTE } { msg.Autori.PrezimeGTE}");
-});
-
-await bus.PubSub.SubscribeAsync<AutoriSearched>("mail_sender", msg =>
-{
-    Console.WriteLine($"Saljemo Email {msg.Autori.ImeGTE} {msg.Autori.PrezimeGTE}");
-    //todo send email
-});*/
-
 var builder = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json")

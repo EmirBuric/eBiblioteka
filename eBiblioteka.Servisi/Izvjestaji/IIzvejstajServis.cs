@@ -10,5 +10,7 @@ namespace eBiblioteka.Servisi.Izvjestaji
     public interface IIzvejstajServis
     {
         public Task<KnjigaIzvjestajDTO> GetKnjigaIzvjestaj(int knjigaId, DateTime datumOd, DateTime datumDo);
+
+        public Task<ClanarinaIzvjestajDTO> MjesecniIzvjestaj(int mjesec, int godina);
     }
 }
