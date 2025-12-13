@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:ebiblioteka_admin/models/izvjestaj_clanarina.dart';
 import 'package:http/http.dart' as http;
 import 'package:ebiblioteka_admin/models/clanarina.dart';
 import 'package:ebiblioteka_admin/providers/base_provider.dart';
@@ -31,6 +32,27 @@ class ClanarinaProvider extends BaseProvider<Clanarina> {
       }
 
       return null;
+    } catch (e) {
+      throw Exception('Greška prilikom komunikacije sa serverom: $e');
+    }
+  }
+
+  Future<ClanarinaIzvjestaj> getKnjigaIzvjestaj(int mjesec, int godina) async {
+    String endpoint =
+        "Clanarina/GetMjesecniIzvjestaj?mjesec=$mjesec&godina=$godina";
+    final uri = Uri.parse('${BaseProvider.baseUrl}$endpoint');
+
+    final headers = createHeaders();
+
+    try {
+      final response = await http.get(uri, headers: headers);
+
+      if (isValidResponse(response)) {
+        final json = jsonDecode(response.body);
+        return ClanarinaIzvjestaj.fromJson(json);
+      } else {
+        throw Exception('Greška prilikom dohvatanja izvještaja');
+      }
     } catch (e) {
       throw Exception('Greška prilikom komunikacije sa serverom: $e');
     }
